@@ -27,10 +27,6 @@ namespace progconst{
     const string arg_t2_buf = "-buf";
 
     // manual: 
-    /*const string manual = "Ussage: search PATH PATTERN [OPTIONS]\nOptions:"
-        "\n\t-t1  NUM\t process NUM files in parallel (default is single-thread)"
-        "\n\t-t2  NUM\t run search in each file with max NUM threads (default is single-thread)"
-        "\n\t-buf NUM\t if -t2 > 1, split file to segments of size NUM and search in segments in parallel";*/
     const string manual = boost::str(boost::format{"Ussage: search PATH PATTERN [OPTIONS]\nOptions:"
         "\n\t-t1  NUM\t process NUM files in parallel"
         "\n\t\t\t min: %1%, max: %2%, single thread (default): %1%"
@@ -51,6 +47,8 @@ namespace progconst{
 
     // program errors:
     const string file_error = "Unexpected error: ";
+
+    // runtime exceptions:
 }
 
 #endif

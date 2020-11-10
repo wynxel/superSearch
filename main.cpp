@@ -8,8 +8,8 @@
 #include <filesystem>
 #include <string>
 #include "const.h"
-#include "taskParallelizer.h"
-#include "data.h"
+#include "task_parallelizer.h"
+//#include "data.h"
 
 using namespace std;
 namespace fs = filesystem;
@@ -101,8 +101,9 @@ int main(int argc, char **argv)
     }
 
     // store arguments: directory, string to match, multi thread settings:
-    const struct prog_data data = 
-        {string(argv[2]), string(argv[1]), arg_t1, arg_t2, arg_buf};
+    // bude tu pole structov job_details
+    //const struct prog_data data = 
+    //    {string(argv[2]), string(argv[1]), arg_t1, arg_t2, arg_buf};
 
     // create class for managing program output:
     // TODO

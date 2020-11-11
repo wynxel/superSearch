@@ -72,6 +72,7 @@ const T TaskParallelizer<S, T>::next_job_argument()
     if (!m_parallel) {
         throw runtime_error(tpconst::no_multithread);
     }
+
     unique_lock<mutex> lock(m_mutex);
     m_cond_var.wait(lock, [&](){return !m_next_job.empty() || m_job_finish;});
     // check for empty and not job_finis, because it may happen, that 
@@ -81,36 +82,40 @@ const T TaskParallelizer<S, T>::next_job_argument()
         lock.unlock();
         throw NoMoreJob();
     }
+
     T ret_val = m_next_job.back();
     m_next_job.pop_back();
     return ret_val;
 }
 
-
-// TODO
+// Do main job using vector of jobs:
 template <typename S, typename T>
-void TaskParallelizer<S, T>::start(const S t_single_job = nullptr)
+void TaskParallelizer<S, T>::start()
 {
-    // check, if we should use t_single_job or if we need
-    //  to get job details from super class:
-    if (t_single_job != nullptr) {
-        do_job(t_single_job);
-    } else {
-        // check, if super_job_class is initialized:
-        if (m_super_job_class == nullptr) {
-            throw runtime_error(tpconst::no_job_to_do);
+    // check, if super_job_class is initialized:
+    if (m_super_job_class == nullptr) {
+        throw runtime_error(tpconst::no_job_to_do);
+    }
+    S* new_job;
+    while (true) {
+        try {
+            new_job = &m_super_job_class->next_job_argument();
+        } catch (NoMoreJob except) {
+            break; 
         }
-        S* new_job;
-        while (true) {
-            try {
-                *new_job = m_super_job_class->next_job_argument();
-            } catch (NoMoreJob except) {
-                break; 
-            }
-            do_job(*new_job);
-        }
+        // do_job outside of try block, because we don't want to catch
+        // some unhandled, nested NoMoreJob exception from do_job
+        do_job(*new_job);
     }
 }
+
+// Do main job using direct parameter:
+template <typename S, typename T>
+inline void TaskParallelizer<S, T>::start(const S &t_single_job)
+{
+        do_job(t_single_job);   
+}
+
 
 // Function turns on controll flag variable
 // that indicates, that running threads should
@@ -141,7 +146,7 @@ void TaskParallelizer<S, T>::check_and_set_finished()
 //  logic_error - if there is no sub_job class
 //  (no sub_job class was declared in constructor)
 template <typename S, typename T>
-void TaskParallelizer<S, T>::call_sub_job(const T t_item)
+void TaskParallelizer<S, T>::call_sub_job(const T &t_item)
 {
     if (m_parallel) {
         {

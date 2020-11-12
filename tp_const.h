@@ -25,6 +25,8 @@ namespace tpconst{
     const string wrong_seg_size = "Too big segment size.";
     const string thread_vs_class_count = "Wrong m_sub_job_class initialization. Size of m_sub_job_class "
         "vector is not equal to number of threads.";
+    const string no_sub_job_class = "Function call_sub_job(...) can't be used if no sub_job classes are set-up. "
+        "See assign_sub_job_class(...) function.";
 }
 
 

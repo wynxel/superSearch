@@ -27,13 +27,16 @@ using namespace std;
 // Exception used by next_job_argument function:
 class NoMoreJob : public runtime_error {};
 
-// Template struct for passing job description 
-// details for TaskParallelizer class(es)
-template <typename T>
+// Settings for TaskParallelizer instance
 struct job_details {
-    const T job_detail;
+    const void* job_detail;
     const unsigned int thread_number;
     const unsigned int job_segment_size;
+};
+
+class TaskContainer{
+    virtual void start();
+    virtual void do_job();
 };
 
 // TaskParallelizer class
@@ -42,16 +45,16 @@ struct job_details {
 // typename T (output type)
 //  is type of output of TaskParallelizer
 template <typename S, typename T>
-class TaskParallelizer {
+class TaskParallelizer : public TaskContainer{
 
-    private:
+    protected:
         const bool m_parallel;
         vector<T> m_next_job;
-        vector<TaskParallelizer*> m_sub_job_class;
+        vector<TaskContainer*> m_sub_job_class;
         vector<thread*> m_threads;
         struct job_details m_job_details[];
         const unsigned int m_job_details_num;      
-        TaskParallelizer* m_super_job_class;
+        TaskContainer* m_super_job_class;
         mutex m_mutex;
         condition_variable m_cond_var;
         bool m_job_finish = false;

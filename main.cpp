@@ -116,6 +116,10 @@ int main(int argc, char **argv)
         std::cerr << progconst::file_error << e.what() << endl;
         return EXIT_FAILURE;
     }
+    // SKUSAME:
+    //Diks<string, string> disk(t_jobs, 3, nullptr);
+    //disk.start("/home/...");
+
     //cout << data.path.string() << ", " << data.to_find << ", " << data.t1 << ", " << data.t2 << ", " << data.b2_buf << endl;
     return EXIT_SUCCESS;
 }

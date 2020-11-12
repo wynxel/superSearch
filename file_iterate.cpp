@@ -1,4 +1,24 @@
 /*
+
+                TODO
+                
+    
+
+*/
+#include "file_iterate.h"
+
+inline void FileIterate::assign_sub_job_class(const unsigned int t_thread_num)
+{
+    for (int i = 0; i < t_thread_num; i++) {
+        int f = 15;
+        // TODO:
+        //m_sub_job_class.push_back(...);
+    }
+} 
+
+
+
+/*
 void FilesystemIterate::process_path()
 {
     // check, if path argument is file or directory: 

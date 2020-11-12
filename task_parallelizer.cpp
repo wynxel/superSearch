@@ -16,14 +16,18 @@
 //  - t_job_num: length of t_jobs
 //  - t_super_job_class: pointer to super class (if exists)
 // Class extending TaskParallelizer must define assign_sub_job_class method.
+/*TaskParallelizer(const struct job_details t_jobs[], 
+            const unsigned int t_job_num, 
+            TaskParallelizer* t_super_job_class = nullptr);
+*/
 template <typename S, typename T>
 TaskParallelizer<S, T>::TaskParallelizer(const struct job_details t_jobs[], 
-    const unsigned int t_job_num, TaskParallelizer* t_super_job_class = nullptr) :
+    const unsigned int t_job_num, TaskParallelizer* t_super_job_class) :
     m_parallel((t_jobs[0].thread_number > tpconst::NO_THREAD) ? true : false),
     m_super_job_class(t_super_job_class)
     {
         // check: thread number, segment size:
-        const unsigned int thread_num = t_jobs[0].thread_number
+        const unsigned int thread_num = t_jobs[0].thread_number;
         if (thread_num > tpconst::THREAD_MAX) {
             throw invalid_argument(tpconst::too_many_threads);
         }
@@ -46,10 +50,9 @@ TaskParallelizer<S, T>::TaskParallelizer(const struct job_details t_jobs[],
 
         // start threads:
         if (m_parallel) {
-            for (int i = 0; i < sub_job_num; i++) {
+            for (int i = 0; i < thread_num; i++) {
                 m_threads.push_back(
-                    new thread(
-                        m_sub_job_class[i]->start));
+                    new thread(&TaskContainer::start, m_sub_job_class[i]));
             }
         }
     }
@@ -153,10 +156,10 @@ void TaskParallelizer<S, T>::call_sub_job(const T &t_item)
             unique_lock<mutex> lock(m_mutex);
             m_next_job.push_back(t_item);
         }
-        m_cond_var.notify_one()
+        m_cond_var.notify_one();
     } else {
         if (m_sub_job_class.empty()) {
-            throw logic_error(tpconst::)
+            throw logic_error(tpconst::no_sub_job_class);
         }
         m_sub_job_class[0]->do_job(t_item);
     }
@@ -171,7 +174,7 @@ TaskParallelizer<S, T>::~TaskParallelizer()
 
     // wait for threads:
     for (auto& elem_thread : m_threads) {
-        elem_thread->join;
+        elem_thread->join();
     }
 
     // delete threads:

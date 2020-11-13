@@ -6,52 +6,36 @@
 
 */
 #include "file_iterate.h"
+#include "file_read.h"
 
 inline void FileIterate::assign_sub_job_class(const unsigned int t_thread_num)
 {
     for (int i = 0; i < t_thread_num; i++) {
         int f = 15;
         // TODO:
-        //m_sub_job_class.push_back(...);
+        m_sub_job_class.push_back(new FileRead());
     }
 } 
 
-
-
-/*
-void FilesystemIterate::process_path()
+void FileIterate::start(const string &t_path)
 {
     // check, if path argument is file or directory: 
-    if (fs::is_regular_file(m_next_job.path)) {
-        process_file(m_next_job.path);
+    if (fs::is_regular_file(t_path)) {
+        call_sub_job(fs::path(t_path));
     } else {
-        for (auto& fs_item: fs::recursive_directory_iterator(m_next_job.path)) {
-            const filesystem::path path = fs_item.path();
-            if (fs::is_regular_file(path)) {
-                process_file(string(path));
+        for (auto& fs_item: fs::recursive_directory_iterator(t_path)) {
+            if (fs::is_regular_file(fs_item.path())) {
+                call_sub_job(fs_item.path());
             }
         }
     }  
 }
 
-
-// Function for processing single file.
-// If in multithread mode, function only adds file path (string)
-// to internal stack. This file will be later processed by some
-// free thread.
-// If in singlethread mode, function calls string search in file. 
-void FilesystemIterate::process_file(const string &t_path)
+void FileIterate::start()
 {
-    // check if multithread mode:
-    if (m_t1_paralell) {
-        scoped_lock<mutex> locker(m_mutex);
-        m_filePaths.push_back(t_path);
-        cout << "mtthrd: file add: " << t_path << "\n";
+    if (m_super_job_class == nullptr) {
+        start(next_job_argument());
     } else {
-        // TODO: single thread, direct search in file:
-        cout << "sgthr: file add\n";
+        start(((TaskParallelizer<string, string>*)m_super_job_class)->next_job_argument());
     }
 }
-
-
-*/

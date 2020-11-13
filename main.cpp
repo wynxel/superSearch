@@ -9,6 +9,7 @@
 #include <string>
 #include "const.h"
 #include "task_parallelizer.h"
+#include "file_iterate.h"
 //#include "data.h"
 
 using namespace std;
@@ -100,18 +101,22 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    // store arguments: directory, string to match, multi thread settings:
-    // bude tu pole structov job_details
-    //const struct prog_data data = 
-    //    {string(argv[2]), string(argv[1]), arg_t1, arg_t2, arg_buf};
+    // struct with program parameters:
+    string path = argv[2];
+    const struct job_details data[3] = {
+        {nullptr, progconst::THR_MIN, progconst::BUF_NDEF},
+        {nullptr, arg_t1, arg_buf},
+        {&path, arg_t2, progconst::BUF_NDEF}
+    };
 
     // create class for managing program output:
     // TODO
 
     // run search:
     try {
-        //FilesystemIterate search(data);
-        int i = 0;
+        FileIterate search(data, 3);
+        const string s = string(argv[1]);
+        search.start(string(argv[1]));   
     } catch(const fs::filesystem_error& e) {
         std::cerr << progconst::file_error << e.what() << endl;
         return EXIT_FAILURE;

@@ -16,6 +16,7 @@ namespace progconst{
     // defaults:
     const int THR_MIN = 0;
     const int THR_MAX = 10;
+    const int BUF_NDEF = 0;
     const int BUF_MIN = 1;
     const int BUF_MAX = 10000;
     const int BUF_MULT = 1000;

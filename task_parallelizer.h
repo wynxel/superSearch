@@ -34,9 +34,14 @@ struct job_details {
     const unsigned int job_segment_size;
 };
 
+// Super class for TaskParallelizer.
+// Declares two functions, that needs to be 
+// called on TaskParallelizer instance
+// even if we don't know template types
 class TaskContainer{
-    virtual void start();
-    virtual void do_job();
+    public:
+        virtual void start();
+        virtual void start_parallel();
 };
 
 // TaskParallelizer class
@@ -47,38 +52,53 @@ class TaskContainer{
 template <typename S, typename T>
 class TaskParallelizer : public TaskContainer{
 
+    private:
+        bool m_initialized = false;
+        bool m_parallel = false;
+
     protected:
-        const bool m_parallel;
         vector<T> m_next_job;
         vector<TaskContainer*> m_sub_job_class;
         vector<thread*> m_threads;
-        struct job_details m_job_details[];
+        struct job_details* m_job_details;
         const unsigned int m_job_details_num;      
         TaskContainer* m_super_job_class;
         mutex m_mutex;
         condition_variable m_cond_var;
         bool m_job_finish = false;
+        const T* m_single_thread_arg_shortcut;
 
     public:
         TaskParallelizer(const struct job_details t_jobs[], 
             const unsigned int t_job_num, 
             TaskParallelizer* t_super_job_class = nullptr);
+        TaskParallelizer();
 
-        inline void start();
-        void start(const S &t_single_job);
+        // Start function only gets argument and calls start(argument)
+        // This function should contain only this, and definte TYPE:
+        /*
+            if (m_super_job_class == nullptr) {
+                start(next_job_argument());
+            } else {
+                start(((TaskParallelizer<TYPE, TYPE>*)m_super_job_class)->next_job_argument());
+            }
+        */
+        // As template types are statically check during compile time
+        // this function can't be implemented in TaskParallelizer and must
+        // be implemented in class which extends TaskParallelizer.
+        virtual void start() = 0;
+        void start_parallel();
+        virtual void start(const S &t_single_job) = 0;
+        bool is_parallel();
 
         const T next_job_argument();
+        bool setup(const struct job_details t_jobs[], 
+            const unsigned int t_job_num, 
+            TaskParallelizer* t_super_job_class = nullptr); 
 
         ~TaskParallelizer();
 
     private:
-        // Function do_job implements main functionality (does job) 
-        // which can be parallelised by TaskParallelizer functionality
-        virtual void do_job(const S &t_single_job) = 0;
-
-        void call_sub_job(const T &t_item);
-
-        inline void check_and_set_finished();
 
     protected:
         // Method for filling m_sub_job_class vector.
@@ -88,6 +108,10 @@ class TaskParallelizer : public TaskContainer{
         // argument: 
         //  - t_thread_num: number of threads used in this instance
         virtual inline void assign_sub_job_class(const unsigned int t_thread_num) = 0;
+        void call_sub_job(const T &t_item);
+
+        inline void check_and_set_finished();
+
 };
 
 #endif

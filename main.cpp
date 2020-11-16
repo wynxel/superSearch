@@ -22,7 +22,7 @@ int stoi_exception(int *t_out, const char* t_in)
     try {
         *t_out = stoi(t_in);
         return 1;
-    } catch (exception e) {
+    } catch (exception& e) {
         return 0;
     }
 }
@@ -47,9 +47,9 @@ int main(int argc, char **argv)
     } 
     
     // parse switches:
-    int arg_t1 = progconst::THR_MIN;
-    int arg_t2 = progconst::THR_MIN;
-    int arg_buf = progconst::BUF_DEF;
+    int arg_t1 = (int) progconst::THR_MIN;
+    int arg_t2 = (int) progconst::THR_MIN;
+    int arg_buf = (int) progconst::BUF_DEF;
     int arg_idx = 3;
     while (arg_idx + 1 < argc) {
         // check switch and value:
@@ -82,15 +82,18 @@ int main(int argc, char **argv)
     }
 
     // check values:
-    if (arg_t1 < progconst::THR_MIN || arg_t1 > progconst::THR_MAX) {
+    if (arg_t1 < (int) progconst::THR_MIN 
+        || arg_t1 > (int) progconst::THR_MAX) {
         cout << progconst::wrong_value_t1 << endl;
         return arg_error_exit();
     }
-   if (arg_t2 < progconst::THR_MIN || arg_t2 > progconst::THR_MAX) {
+   if (arg_t2 < (int) progconst::THR_MIN 
+        || arg_t2 > (int) progconst::THR_MAX) {
         cout << progconst::wrong_value_t2 << endl;
         return arg_error_exit();
     }
-   if (arg_buf < progconst::BUF_MIN || arg_buf > progconst::BUF_MAX) {
+   if (arg_buf < (int) progconst::BUF_MIN 
+        || arg_buf > (int) progconst::BUF_MAX) {
         cout << progconst::wrong_value_buf << endl;
         return arg_error_exit();
     }
@@ -105,8 +108,8 @@ int main(int argc, char **argv)
     string path = argv[2];
     const struct job_details data[3] = {
         {nullptr, progconst::THR_MIN, progconst::BUF_NDEF},
-        {nullptr, arg_t1, arg_buf},
-        {&path, arg_t2, progconst::BUF_NDEF}
+        {nullptr, (unsigned) arg_t1, (unsigned) arg_buf},
+        {&path, (unsigned) arg_t2, progconst::BUF_NDEF}
     };
 
     // create class for managing program output:

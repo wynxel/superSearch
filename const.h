@@ -14,13 +14,13 @@ using namespace std;
 
 namespace progconst{
     // defaults:
-    const int THR_MIN = 0;
-    const int THR_MAX = 10;
-    const int BUF_NDEF = 0;
-    const int BUF_MIN = 1;
-    const int BUF_MAX = 10000;
-    const int BUF_MULT = 1000;
-    const int BUF_DEF = 1000;
+    const unsigned THR_MIN = 0;
+    const unsigned THR_MAX = 10;
+    const unsigned BUF_NDEF = 0;
+    const unsigned BUF_MIN = 1;
+    const unsigned BUF_MAX = 10000;
+    const unsigned BUF_MULT = 1000;
+    const unsigned BUF_DEF = 1000;
 
     // switches: 
     const string arg_t1 = "-t1";

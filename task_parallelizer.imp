@@ -6,7 +6,7 @@
 
 */
 
-#include "task_parallelizer.h"
+//#include "task_parallelizer.h"
 #include "tp_const.h"
 
 // Empty constructor:
@@ -28,15 +28,15 @@ TaskParallelizer<S, T>::TaskParallelizer(){}
 */
 template <typename S, typename T>
 TaskParallelizer<S, T>::TaskParallelizer(const struct job_details t_jobs[], 
-    const unsigned int t_job_num, TaskParallelizer* t_super_job_class)
+    const unsigned t_job_num, TaskContainer* t_super_job_class)
     {
         setup(t_jobs, t_job_num, t_super_job_class);
     }
 
 template <typename S, typename T>
 bool TaskParallelizer<S, T>::setup(const struct job_details t_jobs[], 
-    const unsigned int t_job_num, 
-    TaskParallelizer* t_super_job_class)
+    const unsigned t_job_num, 
+    TaskContainer* t_super_job_class)
     {
         if (m_initialized) {
             return false;
@@ -47,8 +47,8 @@ bool TaskParallelizer<S, T>::setup(const struct job_details t_jobs[],
         m_initialized = true;
 
         // check: thread number, segment size:
-        const unsigned int thread_num = t_jobs[0].thread_number;
-        if (thread_num > tpconst::THREAD_MAX) {
+        const unsigned thread_num = t_jobs[0].thread_number;
+        if (thread_num > static_cast<unsigned>(tpconst::THREAD_MAX)) {
             throw invalid_argument(tpconst::too_many_threads);
         }
         if (m_parallel && t_jobs[0].job_segment_size > tpconst::SEG_MAX) {
@@ -56,6 +56,9 @@ bool TaskParallelizer<S, T>::setup(const struct job_details t_jobs[],
         }
         
         // job details array:
+        if (t_job_num < 1) {
+            throw invalid_argument(tpconst::job_num_len);
+        }
         m_job_details = t_jobs;
         m_job_details_num = t_job_num;
         
@@ -70,7 +73,7 @@ bool TaskParallelizer<S, T>::setup(const struct job_details t_jobs[],
 
         // setup() sub classes and start threads:
         if (m_parallel) {
-            for (int i = 0; i < thread_num; i++) {
+            for (unsigned i = 0; i < thread_num; i++) {
                 ((TaskParallelizer*) m_sub_job_class[i])->setup(
                     t_jobs + 1, t_job_num - 1, this);
                 m_threads.push_back(
@@ -109,7 +112,7 @@ const T TaskParallelizer<S, T>::next_job_argument()
         if (m_single_thread_arg_shortcut == nullptr) {
             throw NoMoreJob();
         }
-        T* ret_val = m_single_thread_arg_shortcut;
+        const T* ret_val = m_single_thread_arg_shortcut;
         m_single_thread_arg_shortcut = nullptr;
         return *ret_val;
     }
@@ -142,7 +145,7 @@ void TaskParallelizer<S, T>::start_parallel()
     while (true) {
         try {
             start();
-        } catch (NoMoreJob except) {
+        } catch (NoMoreJob& except) {
             break; 
         }
     }

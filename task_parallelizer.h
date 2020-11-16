@@ -25,7 +25,10 @@
 using namespace std;
 
 // Exception used by next_job_argument function:
-class NoMoreJob : public runtime_error {};
+class NoMoreJob : public exception {
+    public:
+        NoMoreJob() : exception(){};
+};
 
 // Settings for TaskParallelizer instance
 struct job_details {
@@ -40,8 +43,9 @@ struct job_details {
 // even if we don't know template types
 class TaskContainer{
     public:
-        virtual void start();
-        virtual void start_parallel();
+        virtual void start() = 0;
+        virtual void start_parallel() = 0;
+        virtual ~TaskContainer() {};
 };
 
 // TaskParallelizer class
@@ -55,13 +59,13 @@ class TaskParallelizer : public TaskContainer{
     private:
         bool m_initialized = false;
         bool m_parallel = false;
+        unsigned m_job_details_num;
 
     protected:
         vector<T> m_next_job;
         vector<TaskContainer*> m_sub_job_class;
         vector<thread*> m_threads;
-        struct job_details* m_job_details;
-        const unsigned int m_job_details_num;      
+        const struct job_details* m_job_details;    
         TaskContainer* m_super_job_class;
         mutex m_mutex;
         condition_variable m_cond_var;
@@ -70,8 +74,8 @@ class TaskParallelizer : public TaskContainer{
 
     public:
         TaskParallelizer(const struct job_details t_jobs[], 
-            const unsigned int t_job_num, 
-            TaskParallelizer* t_super_job_class = nullptr);
+            const unsigned t_job_num, 
+            TaskContainer* t_super_job_class = nullptr);
         TaskParallelizer();
 
         // Start function only gets argument and calls start(argument)
@@ -93,8 +97,8 @@ class TaskParallelizer : public TaskContainer{
 
         const T next_job_argument();
         bool setup(const struct job_details t_jobs[], 
-            const unsigned int t_job_num, 
-            TaskParallelizer* t_super_job_class = nullptr); 
+            const unsigned t_job_num, 
+            TaskContainer* t_super_job_class = nullptr); 
 
         ~TaskParallelizer();
 
@@ -107,11 +111,13 @@ class TaskParallelizer : public TaskContainer{
         // Vector can be empty, but then you can't call call_sub_job.
         // argument: 
         //  - t_thread_num: number of threads used in this instance
-        virtual inline void assign_sub_job_class(const unsigned int t_thread_num) = 0;
+        virtual inline void assign_sub_job_class(const unsigned t_thread_num) = 0;
         void call_sub_job(const T &t_item);
 
         inline void check_and_set_finished();
 
 };
+#include "task_parallelizer.imp"
+
 
 #endif

@@ -6,13 +6,22 @@
 
 */
 #include "file_iterate.h"
+#include "task_parallelizer.h"
 #include "file_read.h"
 
-inline void FileIterate::assign_sub_job_class(const unsigned int t_thread_num)
+FileIterate::FileIterate(const struct job_details t_jobs[], 
+            const unsigned t_job_num, 
+            TaskParallelizer* t_super_job_class) 
+            : TaskParallelizer(t_jobs, t_job_num, t_super_job_class){};
+
+FileIterate::FileIterate() : TaskParallelizer(){};
+
+FileIterate::~FileIterate(){};
+
+
+inline void FileIterate::assign_sub_job_class(const unsigned t_thread_num)
 {
-    for (int i = 0; i < t_thread_num; i++) {
-        int f = 15;
-        // TODO:
+    for (unsigned i = 0; i < t_thread_num; i++) {
         m_sub_job_class.push_back(new FileRead());
     }
 } 

@@ -21,6 +21,7 @@
 #include <thread>
 #include <condition_variable>
 #include <exception>
+#include <type_traits>
 
 using namespace std;
 
@@ -33,8 +34,8 @@ class NoMoreJob : public exception {
 // Settings for TaskParallelizer instance
 struct job_details {
     const void* job_detail;
-    const unsigned int thread_number;
-    const unsigned int job_segment_size;
+    const unsigned thread_number;
+    const unsigned job_segment_size;
 };
 
 // Super class for TaskParallelizer.
@@ -50,6 +51,9 @@ class TaskContainer{
 
 class Terminator : public TaskContainer {
     public: 
+        Terminator(const struct job_details t_jobs[], 
+            const unsigned t_job_num, 
+            TaskContainer* t_super_job_class = nullptr){};
         void start() {};
         void start_parallel() {};
 
@@ -63,12 +67,12 @@ class Terminator : public TaskContainer {
 
 // podmienka na to, co je C!
 template <typename S, typename T, class C>
+//typename enable_if<is_base_of<TaskParallelizer, C>::value, C>::type
 class TaskParallelizer : public TaskContainer{
 
     private:
-        bool m_initialized = false;
-        bool m_parallel = false;
-        unsigned m_job_details_num;
+        const bool m_parallel;
+        const unsigned m_job_details_num;
 
     protected:
         vector<T> m_next_job;
@@ -78,14 +82,13 @@ class TaskParallelizer : public TaskContainer{
         TaskContainer* m_super_job_class;
         mutex m_mutex;
         condition_variable m_cond_var;
-        bool m_job_finish = false;
+        bool m_job_finish;
         const T* m_single_thread_arg_shortcut;
 
     public:
         TaskParallelizer(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class = nullptr);
-        TaskParallelizer();
 
         // Start function only gets argument and calls start(argument)
         // This function should contain only this, and definte TYPE:
@@ -107,22 +110,11 @@ class TaskParallelizer : public TaskContainer{
         bool is_parallel();
 
         const T next_job_argument();
-        bool setup(const struct job_details t_jobs[], 
-            const unsigned t_job_num, 
-            TaskContainer* t_super_job_class = nullptr); 
-
         ~TaskParallelizer();
 
     private:
 
     protected:
-        // Method for filling m_sub_job_class vector.
-        // Use new: m_sub_job_class.push_back(new ...). 
-        //  TaskParellelizer destructor uses delete.
-        // Vector can be empty, but then you can't call call_sub_job.
-        // argument: 
-        //  - t_thread_num: number of threads used in this instance
-        virtual inline void assign_sub_job_class(const unsigned t_thread_num) = 0;
         void call_sub_job(const T &t_item);
 
         inline void check_and_set_finished();

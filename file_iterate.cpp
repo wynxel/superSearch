@@ -14,18 +14,7 @@ FileIterate::FileIterate(const struct job_details t_jobs[],
             TaskContainer* t_super_job_class) 
             : TaskParallelizer(t_jobs, t_job_num, t_super_job_class){cout << "FI1\n";};
 
-FileIterate::FileIterate() : TaskParallelizer(){cout << "FI2\n";};
-
 FileIterate::~FileIterate(){};
-
-
-inline void FileIterate::assign_sub_job_class(const unsigned t_thread_num)
-{
-    for (unsigned i = 0; i < t_thread_num; i++) {
-        int j = 5;
-        //m_sub_job_class.push_back(new FileRead());
-    }
-} 
 
 void FileIterate::start(const string &t_path)
 {

@@ -13,10 +13,11 @@ using namespace std;
 
 namespace tpconst{
     // const:
-    const int NO_THREAD = 0;
-    const int THREAD_MAX = 20;
-    const int SEG_MAX = 10000;
-    const int SEG_MULT = 1000;
+    const unsigned NO_THREAD = 0;
+    const unsigned THREAD_MAX = 20;
+    const unsigned NO_SEG = 0;
+    const unsigned SEG_MAX = 10000;
+    const unsigned SEG_MULT = 1000;
 
     // runtime exceptions:
     const string no_multithread = "This function can be called only in multithread mode.";

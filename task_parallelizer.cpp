@@ -6,14 +6,14 @@
 
 */
 
-//#include "task_parallelizer.h"
+#include "task_parallelizer.h"
 #include "tp_const.h"
 
 // Empty constructor:
 // (use only in assign_sub_job_class() function
 // super class then calls setup() with right arguments)
-template <typename S, typename T>
-TaskParallelizer<S, T>::TaskParallelizer(){}
+template <typename S, typename T, class C>
+TaskParallelizer<S, T, C>::TaskParallelizer(){}
 
 // Regular constructor:
 // Arguments:
@@ -26,15 +26,15 @@ TaskParallelizer<S, T>::TaskParallelizer(){}
             const unsigned int t_job_num, 
             TaskParallelizer* t_super_job_class = nullptr);
 */
-template <typename S, typename T>
-TaskParallelizer<S, T>::TaskParallelizer(const struct job_details t_jobs[], 
+template <typename S, typename T, class C>
+TaskParallelizer<S, T, C>::TaskParallelizer(const struct job_details t_jobs[], 
     const unsigned t_job_num, TaskContainer* t_super_job_class)
     {
         setup(t_jobs, t_job_num, t_super_job_class);
     }
 
-template <typename S, typename T>
-bool TaskParallelizer<S, T>::setup(const struct job_details t_jobs[], 
+template <typename S, typename T, class C>
+bool TaskParallelizer<S, T, C>::setup(const struct job_details t_jobs[], 
     const unsigned t_job_num, 
     TaskContainer* t_super_job_class)
     {
@@ -54,7 +54,7 @@ bool TaskParallelizer<S, T>::setup(const struct job_details t_jobs[],
         if (m_parallel && t_jobs[0].job_segment_size > tpconst::SEG_MAX) {
             throw invalid_argument(tpconst::wrong_seg_size);
         }
-        
+
         // job details array:
         if (t_job_num < 1) {
             throw invalid_argument(tpconst::job_num_len);
@@ -63,7 +63,7 @@ bool TaskParallelizer<S, T>::setup(const struct job_details t_jobs[],
         m_job_details_num = t_job_num;
         
         // set-up sub-job classes:
-        assign_sub_job_class(thread_num);
+        //assign_sub_job_class(thread_num);
 
         // check, class-thread count:
         if (m_parallel && 
@@ -74,19 +74,28 @@ bool TaskParallelizer<S, T>::setup(const struct job_details t_jobs[],
         // setup() sub classes and start threads:
         if (m_parallel) {
             for (unsigned i = 0; i < thread_num; i++) {
-                ((TaskParallelizer*) m_sub_job_class[i])->setup(
+                C* sub_job_class = new C();
+                ((TaskParallelizer*) sub_job_class)->setup(
                     t_jobs + 1, t_job_num - 1, this);
-                m_threads.push_back(
-                    new thread(&TaskContainer::start_parallel, 
-                        m_sub_job_class[i]));
+                thread* job_thread = new thread(&TaskContainer::start_parallel, 
+                    sub_job_class);
+                // add to vector:
+                m_sub_job_class.push_back(sub_job_class);                
+                m_threads.push_back(job_thread);
             }
+        } else {
+            C* sub_job_class = new C();
+            ((TaskParallelizer*) sub_job_class)->setup(
+                t_jobs + 1, t_job_num - 1, this);
+            m_sub_job_class.push_back(sub_job_class);                
+
         }
         return true;
 }
 
 // Return true if multithread mode
-template <typename S, typename T>
-bool TaskParallelizer<S, T>::is_parallel(){
+template <typename S, typename T, class C>
+bool TaskParallelizer<S, T, C>::is_parallel(){
     return m_parallel;
 }
 // Use only in multithread mode (otherwise 
@@ -101,8 +110,8 @@ bool TaskParallelizer<S, T>::is_parallel(){
 //  If super-job class finished, this function will
 //  throw "NoMoreJob" exception indicating, that theread,
 //  which called this function should finish. 
-template <typename S, typename T>
-const T TaskParallelizer<S, T>::next_job_argument()
+template <typename S, typename T, class C>
+const T TaskParallelizer<S, T, C>::next_job_argument()
 {
     if(!m_initialized) {
         throw runtime_error(tpconst::class_illegal_use);
@@ -136,8 +145,8 @@ const T TaskParallelizer<S, T>::next_job_argument()
 // Checks super-job pointer and starts cycle
 // with start function. Breaks, if there is
 // no more job from super class.
-template <typename S, typename T>
-void TaskParallelizer<S, T>::start_parallel()
+template <typename S, typename T, class C>
+void TaskParallelizer<S, T, C>::start_parallel()
 {
     if (m_super_job_class == nullptr) {
         throw runtime_error(tpconst::no_job_to_do);
@@ -155,8 +164,8 @@ void TaskParallelizer<S, T>::start_parallel()
 // that indicates, that running threads should
 // finish their job and exit. 
 // Function then notifies all sleeping threads.
-template <typename S, typename T>
-void TaskParallelizer<S, T>::check_and_set_finished()
+template <typename S, typename T, class C>
+void TaskParallelizer<S, T, C>::check_and_set_finished()
 {
     if (! m_parallel) {
         return;
@@ -180,8 +189,8 @@ void TaskParallelizer<S, T>::check_and_set_finished()
 // Exception:
 //  logic_error - if there is no sub_job class
 //  (no sub_job class was declared in constructor)
-template <typename S, typename T>
-void TaskParallelizer<S, T>::call_sub_job(const T &t_item)
+template <typename S, typename T, class C>
+void TaskParallelizer<S, T, C>::call_sub_job(const T &t_item)
 {
     if (m_sub_job_class.empty()) {
         throw logic_error(tpconst::no_sub_job_class);
@@ -198,8 +207,8 @@ void TaskParallelizer<S, T>::call_sub_job(const T &t_item)
 }
 
 // Destructor
-template <typename S, typename T>
-TaskParallelizer<S, T>::~TaskParallelizer()
+template <typename S, typename T, class C>
+TaskParallelizer<S, T, C>::~TaskParallelizer()
 {
     // chceck if finished flag is set:
     check_and_set_finished();

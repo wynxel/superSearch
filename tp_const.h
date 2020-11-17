@@ -29,7 +29,7 @@ namespace tpconst{
         "See assign_sub_job_class(...) function.";
     const string class_illegal_use = "Class was constructed withou parameters. Use parametrizied constructor "
         "or call setup(...).";
-    const string job_num_len = "Argument t_job_num is > 1. TaskParallelizer must get job_details argument.";
+    const string job_num_len = "Argument t_job_num is 0. TaskParallelizer must get job_details argument.";
 }
 
 

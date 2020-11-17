@@ -11,18 +11,19 @@
 #include <string>
 #include "task_parallelizer.h"
 #include <filesystem>
+#include "file_read.h"
 
 namespace fs = filesystem;
 
 using namespace std;
 
-class FileIterate : public TaskParallelizer<string, fs::path>{
+class FileIterate : public TaskParallelizer<string, fs::path, FileRead>{
     public:
         FileIterate(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
-            TaskParallelizer* t_super_job_class = nullptr);
+            TaskContainer* t_super_job_class = nullptr);
         FileIterate();
-        virtual void start(const string &t_path);
+        void start(const string &t_path);
         ~FileIterate();
 
     protected:

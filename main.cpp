@@ -10,7 +10,6 @@
 #include "const.h"
 #include "task_parallelizer.h"
 #include "file_iterate.h"
-//#include "data.h"
 
 using namespace std;
 namespace fs = filesystem;

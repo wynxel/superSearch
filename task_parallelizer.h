@@ -48,12 +48,21 @@ class TaskContainer{
         virtual ~TaskContainer() {};
 };
 
+class Terminator : public TaskContainer {
+    public: 
+        void start() {};
+        void start_parallel() {};
+
+};
+
 // TaskParallelizer class
 // typename S (input type)
 //  is type which is processed by TaskParallelizer
 // typename T (output type)
 //  is type of output of TaskParallelizer
-template <typename S, typename T>
+
+// podmienka na to, co je C!
+template <typename S, typename T, class C>
 class TaskParallelizer : public TaskContainer{
 
     private:
@@ -91,6 +100,8 @@ class TaskParallelizer : public TaskContainer{
         // this function can't be implemented in TaskParallelizer and must
         // be implemented in class which extends TaskParallelizer.
         virtual void start() = 0;
+
+        // viac veci urobit protected?
         void start_parallel();
         virtual void start(const S &t_single_job) = 0;
         bool is_parallel();
@@ -117,7 +128,7 @@ class TaskParallelizer : public TaskContainer{
         inline void check_and_set_finished();
 
 };
-#include "task_parallelizer.imp"
+#include "task_parallelizer.cpp"
 
 
 #endif

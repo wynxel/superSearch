@@ -16,6 +16,9 @@ FileRead::~FileRead(){};
 void FileRead::start(const fs::path &t_path)
 {
     // just test:
+    // TODO, pozor, m_next_job (ci jak sa vola ten vektor) musi byt 
+    // vektor tuplov: <offset, data>
+    // a potom sub job-trieda musi vracat <offest, string> - string lebo sa ma nieco ine vypisovat ak nie je cely...
     cout << t_path << "\n";
 }
 

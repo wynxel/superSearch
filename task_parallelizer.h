@@ -22,10 +22,12 @@
 #include <condition_variable>
 #include <exception>
 #include <type_traits>
+#include "util/parallel_vector.h"
 
 using namespace std;
 
 // Exception used by next_job_argument function:
+// TODO pojde prec
 class NoMoreJob : public exception {
     public:
         NoMoreJob() : exception(){};
@@ -64,10 +66,19 @@ class Terminator : public TaskContainer {
 };
 
 // TaskParallelizer class
-// typename S (input type)
-//  is type which is processed by TaskParallelizer.
-// typename T (output type)
-//  is type of output of TaskParallelizer.
+// typename S (job input type)
+//  or super-job class output type
+// typename T (job output type)
+//  or sub-job class input type
+// Scheme for S and T:
+//  S -> do job -> U
+//  S is obtained from super-job class
+//  U is passed to sub-job class
+// typename U (main output type (or result))
+//  is type of result, which is produced 
+//  by this class after finishing all job
+//  and all sub-jobs, which were
+//  started by this class.
 // class C is class processing sub jobs
 //  must be derived from TaskParallelizer. 
 //  if there will be no more sub jobs, use
@@ -85,13 +96,12 @@ class TaskParallelizer : public TaskContainer{
 
     private:
         const unsigned m_job_details_num;
-        vector<T> m_next_job;
+        ParallelVector<T> m_next_job;
+        ParallelVector<U> m_job_result;
         vector<TaskContainer*> m_sub_job_class;
         vector<thread*> m_threads;
         TaskContainer* m_super_job_class;
         const T* m_single_thread_arg_shortcut;
-        mutex m_mutex;
-        condition_variable m_cond_var;
         bool m_job_finish;
 
     public:

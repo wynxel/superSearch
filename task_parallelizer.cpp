@@ -82,21 +82,9 @@ const T TaskParallelizer<S, T, U, C>::next_job_argument()
         const T* ret_val = m_single_thread_arg_shortcut;
         m_single_thread_arg_shortcut = nullptr;
         return *ret_val;
+    } else {
+        return m_next_job.pop_blocking();
     }
-
-    unique_lock<mutex> lock(m_mutex);
-    m_cond_var.wait(lock, [&](){return !m_next_job.empty() || m_job_finish;});
-    // check for empty and not job_finis, because it may happen, that 
-    // main thread add item to m_next_job, then turns job_finish flag and after that
-    // this thread wakes up, checks flag and stops
-    if (m_next_job.empty()) {
-        lock.unlock();
-        throw NoMoreJob();
-    }
-
-    T ret_val = m_next_job.back();
-    m_next_job.pop_back();
-    return ret_val;
 }
 
 // Main function used in multithread mode.
@@ -128,14 +116,7 @@ void TaskParallelizer<S, T, U, C>::notify_sub_to_finish()
     if (! m_parallel) {
         return;
     } else {
-        {
-            unique_lock<mutex> lock(m_mutex);
-            if (!m_job_finish) {
-                return;
-            }
-            m_job_finish = true;   
-        }
-        m_cond_var.notify_all();
+        m_next_job.stop_vector();
     }
 }
 
@@ -153,11 +134,7 @@ void TaskParallelizer<S, T, U, C>::call_sub_job(const T &t_item)
     if (m_sub_job_class.empty()) {
         throw logic_error(tpconst::no_sub_job_class);
     } else if (m_parallel) {
-        {
-            unique_lock<mutex> lock(m_mutex);
-            m_next_job.push_back(t_item);
-        }
-        m_cond_var.notify_one();
+        m_next_job.push(t_item);
     } else {
         m_single_thread_arg_shortcut = &t_item;
         m_sub_job_class[0]->start();
@@ -213,6 +190,18 @@ TaskParallelizer<S, T, U, C>::~TaskParallelizer()
     for (auto& elem_thread : m_threads) {
         elem_thread->join();
     }
+
+    // collect class results from sub-job classes:
+    // watch out, multithread or not
+    // notify super class that result vector will stop
+    // jawla fitta, niekde treba este vopchat funkcionalitu, ze:
+    /*
+        jedno vlakno berie nazov suboru a cita ho do buffera
+        jeho n-subvlakien v nom vyhladava
+        a teraz: super vlakno potrebuje vediet, ci uz sub vlakna dovyhladavali
+                nestaci empty vector, pretoze mozno este hladaju
+            a potrebuje to preto, ze do vypisu do konzoly treba dat nazov suboru
+    */
 
     // delete threads:
     for (auto& elem_thread : m_threads) {

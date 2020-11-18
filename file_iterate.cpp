@@ -12,7 +12,7 @@
 FileIterate::FileIterate(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class) 
-            : TaskParallelizer(t_jobs, t_job_num, t_super_job_class){cout << "FI1\n";};
+            : TaskParallelizer(t_jobs, t_job_num, t_super_job_class){};
 
 FileIterate::~FileIterate(){};
 
@@ -32,9 +32,11 @@ void FileIterate::start(const string &t_path)
 
 void FileIterate::start()
 {
-    if (m_super_job_class == nullptr) {
+    TaskParallelizer<string, string, FileRead>* super_class = 
+        (TaskParallelizer<string, string, FileRead>*) get_super_class();
+    if (super_class == nullptr) {
         start(next_job_argument());
     } else {
-        start(((TaskParallelizer<string, string, FileRead>*)m_super_job_class)->next_job_argument());
+        start(super_class->next_job_argument());
     }
 }

@@ -21,7 +21,7 @@
             TaskParallelizer* t_super_job_class = nullptr);
 */
 template <typename S, typename T, class C>
-TaskParallelizer<S, T, C>::TaskParallelizer(const struct job_details t_jobs[], 
+TaskParallelizer<S, T, C>::TaskParallelizer(const job_details t_jobs[], 
     const unsigned t_job_num, TaskContainer* t_super_job_class) :
     m_parallel(t_jobs[0].thread_number > tpconst::NO_THREAD ? true : false),
     m_super_job_class(t_super_job_class),
@@ -48,7 +48,7 @@ TaskParallelizer<S, T, C>::TaskParallelizer(const struct job_details t_jobs[],
         if (m_parallel) {
             for (unsigned i = 0; i < thread_num; i++) {
                 C* sub_job_class = new C(t_jobs + 1, t_job_num - 1, this);
-                thread* job_thread = new thread(&TaskContainer::start_parallel, 
+                thread* job_thread = new thread(&TaskContainer::start_parallel_cycle, 
                     sub_job_class);
                 // add to vector:
                 m_sub_job_class.push_back(sub_job_class);                
@@ -108,7 +108,7 @@ const T TaskParallelizer<S, T, C>::next_job_argument()
 // with start function. Breaks, if there is
 // no more job from super class.
 template <typename S, typename T, class C>
-void TaskParallelizer<S, T, C>::start_parallel()
+void TaskParallelizer<S, T, C>::start_parallel_cycle()
 {
     if (m_super_job_class == nullptr) {
         throw runtime_error(tpconst::no_job_to_do);
@@ -127,7 +127,7 @@ void TaskParallelizer<S, T, C>::start_parallel()
 // finish their job and exit. 
 // Function then notifies all sleeping threads.
 template <typename S, typename T, class C>
-void TaskParallelizer<S, T, C>::check_and_set_finished()
+void TaskParallelizer<S, T, C>::notify_sub_to_finish()
 {
     if (! m_parallel) {
         return;
@@ -167,13 +167,18 @@ void TaskParallelizer<S, T, C>::call_sub_job(const T &t_item)
         m_sub_job_class[0]->start();
     }
 }
+template <typename S, typename T, class C>
+TaskContainer* TaskParallelizer<S, T, C>::get_super_class()
+{
+    return m_super_job_class;
+}
 
 // Destructor
 template <typename S, typename T, class C>
 TaskParallelizer<S, T, C>::~TaskParallelizer()
 {
     // chceck if finished flag is set:
-    check_and_set_finished();
+    notify_sub_to_finish();
 
     // wait for threads:
     for (auto& elem_thread : m_threads) {

@@ -10,8 +10,8 @@
 FileRead::FileRead(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class) 
-            : TaskParallelizer(t_jobs, t_job_num, t_super_job_class){cout << "FR1\n";};
-FileRead::~FileRead(){cout << "FR1\n";};
+            : TaskParallelizer(t_jobs, t_job_num, t_super_job_class){};
+FileRead::~FileRead(){};
 
 void FileRead::start(const fs::path &t_path)
 {
@@ -21,9 +21,11 @@ void FileRead::start(const fs::path &t_path)
 
 void FileRead::start()
 {
-    if (m_super_job_class == nullptr) {
+    TaskParallelizer<string, fs::path, Terminator>* super_class = 
+        (TaskParallelizer<string, fs::path, Terminator>*) get_super_class();
+    if (super_class == nullptr) {
         start(next_job_argument());
     } else {
-        start(((TaskParallelizer<string, fs::path, Terminator>*)m_super_job_class)->next_job_argument());
+        start(super_class->next_job_argument());
     }
 }

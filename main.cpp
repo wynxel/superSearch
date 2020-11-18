@@ -117,7 +117,6 @@ int main(int argc, char **argv)
     // run search:
     try {
         FileIterate search(data, 3);
-        const string s = string(argv[1]);
         search.start(string(argv[1]));   
     } catch(const fs::filesystem_error& e) {
         std::cerr << progconst::file_error << e.what() << endl;

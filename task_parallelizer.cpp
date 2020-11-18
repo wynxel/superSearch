@@ -152,6 +152,7 @@ template <typename S, typename T, typename U, class C>
 U TaskParallelizer<S, T, U, C>::get_result_blocking()
 {
     //TODO
+    // pozri poznamku v destruktore
     U* u = new U;
     return *u;
 }
@@ -202,6 +203,20 @@ TaskParallelizer<S, T, U, C>::~TaskParallelizer()
                 nestaci empty vector, pretoze mozno este hladaju
             a potrebuje to preto, ze do vypisu do konzoly treba dat nazov suboru
     */
+   /*
+        DALSIE DOPLNENIE:
+            mozno bude potrebne vyrobit vo ParallelVectore aj semafor
+            totizto, potrebujeme vediet, kedy je pocet cakajucich threadov==poctu threadov
+            v takom pripade (mimo situacie, ze by sme zavolali push funkciu (otazka, moze sa to stat?))
+            tak mimo tejto situacie mame istotu, ze vsetky sub-job thready skoncili, resp cakaju na dalsiu
+            robotu. No a v takomto pripade mozeme bezpecne vybrat vsetky ich resulty a vypisat ich
+            pod nazvom daneho suboru. Je vsak na to potrebne implementovat semafor. Otazky su:
+                - kde ma byt ten semafor implementovany? 
+                - kde sa ma overovat ta podmienka #waiting==#thread?
+                - tyka sa tato funkcionalita TaskParallizera vseobecne alebo len nejakej derivovanej triedy?
+                - je mozne, ze tento semafor bude nieco uplne standalone?
+                    je mozne vyhnut sa m_next_job vs m_job_result deadlocku?
+   */
 
     // delete threads:
     for (auto& elem_thread : m_threads) {

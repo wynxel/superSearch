@@ -20,13 +20,14 @@
             const unsigned int t_job_num, 
             TaskParallelizer* t_super_job_class = nullptr);
 */
-template <typename S, typename T, class C>
-TaskParallelizer<S, T, C>::TaskParallelizer(const job_details t_jobs[], 
+template <typename S, typename T, typename U, class C>
+TaskParallelizer<S, T, U, C>::TaskParallelizer(const job_details t_jobs[], 
     const unsigned t_job_num, TaskContainer* t_super_job_class) :
     m_parallel(t_jobs[0].thread_number > tpconst::NO_THREAD ? true : false),
-    m_super_job_class(t_super_job_class),
     m_job_details(t_jobs),
     m_job_details_num(t_job_num),
+    m_super_job_class(t_super_job_class),
+    m_single_thread_arg_shortcut(nullptr),
     m_job_finish(false)
     {
         // check: thread number, segment size, job details length:
@@ -59,11 +60,6 @@ TaskParallelizer<S, T, C>::TaskParallelizer(const job_details t_jobs[],
         }
     }
 
-// Return true if multithread mode
-template <typename S, typename T, class C>
-bool TaskParallelizer<S, T, C>::is_parallel(){
-    return m_parallel;
-}
 // Use only in multithread mode (otherwise 
 // logical_error exception).
 // Function returns T value, which represents
@@ -76,8 +72,8 @@ bool TaskParallelizer<S, T, C>::is_parallel(){
 //  If super-job class finished, this function will
 //  throw "NoMoreJob" exception indicating, that theread,
 //  which called this function should finish. 
-template <typename S, typename T, class C>
-const T TaskParallelizer<S, T, C>::next_job_argument()
+template <typename S, typename T, typename U, class C>
+const T TaskParallelizer<S, T, U, C>::next_job_argument()
 {
     if (!m_parallel) {
         if (m_single_thread_arg_shortcut == nullptr) {
@@ -107,8 +103,8 @@ const T TaskParallelizer<S, T, C>::next_job_argument()
 // Checks super-job pointer and starts cycle
 // with start function. Breaks, if there is
 // no more job from super class.
-template <typename S, typename T, class C>
-void TaskParallelizer<S, T, C>::start_parallel_cycle()
+template <typename S, typename T, typename U, class C>
+void TaskParallelizer<S, T, U, C>::start_parallel_cycle()
 {
     if (m_super_job_class == nullptr) {
         throw runtime_error(tpconst::no_job_to_do);
@@ -126,8 +122,8 @@ void TaskParallelizer<S, T, C>::start_parallel_cycle()
 // that indicates, that running threads should
 // finish their job and exit. 
 // Function then notifies all sleeping threads.
-template <typename S, typename T, class C>
-void TaskParallelizer<S, T, C>::notify_sub_to_finish()
+template <typename S, typename T, typename U, class C>
+void TaskParallelizer<S, T, U, C>::notify_sub_to_finish()
 {
     if (! m_parallel) {
         return;
@@ -151,8 +147,8 @@ void TaskParallelizer<S, T, C>::notify_sub_to_finish()
 // Exception:
 //  logic_error - if there is no sub_job class
 //  (no sub_job class was declared in constructor)
-template <typename S, typename T, class C>
-void TaskParallelizer<S, T, C>::call_sub_job(const T &t_item)
+template <typename S, typename T, typename U, class C>
+void TaskParallelizer<S, T, U, C>::call_sub_job(const T &t_item)
 {
     if (m_sub_job_class.empty()) {
         throw logic_error(tpconst::no_sub_job_class);
@@ -167,15 +163,48 @@ void TaskParallelizer<S, T, C>::call_sub_job(const T &t_item)
         m_sub_job_class[0]->start();
     }
 }
-template <typename S, typename T, class C>
-TaskContainer* TaskParallelizer<S, T, C>::get_super_class()
+
+template <typename S, typename T, typename U, class C>
+bool TaskParallelizer<S, T, U, C>::get_result_num()
+{
+    //TODO
+    return false;
+}
+
+template <typename S, typename T, typename U, class C>
+U TaskParallelizer<S, T, U, C>::get_result_blocking()
+{
+    //TODO
+    U* u = new U;
+    return *u;
+}
+
+template <typename S, typename T, typename U, class C>
+U TaskParallelizer<S, T, U, C>::get_result_non_blocking()
+{
+    //TODO
+    // co vratime ked nic nemame a nieco vratit musime? Vynimka? NoMoreJob? Ina? Nova spolocna?
+    U* u = new U;
+    return *u;
+}
+
+// get pointer to super class (super-job)
+// returns nullptr if no super class
+template <typename S, typename T, typename U, class C>
+TaskContainer* TaskParallelizer<S, T, U, C>::get_super_class()
 {
     return m_super_job_class;
 }
 
+// Return true if multithread mode
+template <typename S, typename T, typename U, class C>
+bool TaskParallelizer<S, T, U, C>::is_parallel(){
+    return m_parallel;
+}
+
 // Destructor
-template <typename S, typename T, class C>
-TaskParallelizer<S, T, C>::~TaskParallelizer()
+template <typename S, typename T, typename U, class C>
+TaskParallelizer<S, T, U, C>::~TaskParallelizer()
 {
     // chceck if finished flag is set:
     notify_sub_to_finish();

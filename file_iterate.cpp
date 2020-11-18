@@ -32,8 +32,8 @@ void FileIterate::start(const string &t_path)
 
 void FileIterate::start()
 {
-    TaskParallelizer<string, string, FileRead>* super_class = 
-        (TaskParallelizer<string, string, FileRead>*) get_super_class();
+    TaskParallelizer<string, string, string, FileRead>* super_class = 
+        (TaskParallelizer<string, string, string, FileRead>*) get_super_class();
     if (super_class == nullptr) {
         start(next_job_argument());
     } else {

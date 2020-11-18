@@ -21,8 +21,8 @@ void FileRead::start(const fs::path &t_path)
 
 void FileRead::start()
 {
-    TaskParallelizer<string, fs::path, Terminator>* super_class = 
-        (TaskParallelizer<string, fs::path, Terminator>*) get_super_class();
+    TaskParallelizer<string, fs::path, string, FileRead>* super_class = 
+        (TaskParallelizer<string, fs::path, string, FileRead>*) get_super_class();
     if (super_class == nullptr) {
         start(next_job_argument());
     } else {

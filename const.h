@@ -38,13 +38,13 @@ namespace progconst{
         % THR_MIN % THR_MAX % THR_MIN % THR_MAX % BUF_MIN % BUF_MAX % BUF_MULT % BUF_DEF);
 
     // argument errors:
-    const string arg_few = "Not enough arguments.";
-    const string not_number = "Expected number, got: ";
-    const string not_switch = "Unknown switch: ";
-    const string wrong_path = "Provided path does not exists: ";
-    const string wrong_value_t1 = boost::str(boost::format{"Use min %1% and max %2% threads for -t1."} % THR_MIN % THR_MAX);
-    const string wrong_value_t2 = boost::str(boost::format{"Use min %1% and max %2% threads for -t2."} % THR_MIN % THR_MAX);
-    const string wrong_value_buf = boost::str(boost::format{"Use min %1% and max %2% for buffer size."} % BUF_MIN % BUF_MAX);
+    const string arg_few = "Error: not enough arguments.";
+    const string not_number = "Error: expected number, got: ";
+    const string not_switch = "Error: unknown switch: ";
+    const string wrong_path = "Error: provided path does not exists: ";
+    const string wrong_value_t1 = boost::str(boost::format{"Error: use min %1% and max %2% threads for -t1."} % THR_MIN % THR_MAX);
+    const string wrong_value_t2 = boost::str(boost::format{"Error: use min %1% and max %2% threads for -t2."} % THR_MIN % THR_MAX);
+    const string wrong_value_buf = boost::str(boost::format{"Error: use min %1% and max %2% for buffer size."} % BUF_MIN % BUF_MAX);
 
     // program errors:
     const string file_error = "Unexpected error: ";

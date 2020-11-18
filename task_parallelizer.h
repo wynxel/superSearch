@@ -76,7 +76,7 @@ class Terminator : public TaskContainer {
 //template <typename S, typename T, class C, 
 //    class = typename enable_if<is_base_of<TaskContainer, C>::value>::type>
 //typename enable_if<is_base_of<TaskParallelizer, C>::value, C>::type
-template <typename S, typename T, class C>
+template <typename S, typename T, typename U, class C>
 class TaskParallelizer : public TaskContainer{
 
     protected:
@@ -101,6 +101,9 @@ class TaskParallelizer : public TaskContainer{
         virtual void start(const S &t_single_job) = 0;
         bool is_parallel();
         const T next_job_argument();
+        bool get_result_num();
+        U get_result_blocking();
+        U get_result_non_blocking();
         ~TaskParallelizer();
 
     private:

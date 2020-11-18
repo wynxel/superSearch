@@ -15,7 +15,7 @@
 namespace fs = filesystem;
 using namespace std;
 
-class FileRead : public TaskParallelizer<fs::path, char*, Terminator>{
+class FileRead : public TaskParallelizer<fs::path, char*, string, Terminator>{
     public:
         FileRead(const struct job_details t_jobs[], 
             const unsigned t_job_num, 

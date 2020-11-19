@@ -56,7 +56,7 @@ void ParallelVector<T>::stop_vector()
 
 template <typename T>
 unsigned ParallelVector<T>
-    ::pause_empty_n_waiting_vector(unsigned t_waiting_threads)
+    ::wake_on_empty_n_waiting(unsigned t_waiting_threads)
     {
         unique_lock<mutex> lock(m_mutex);
         m_wait_limit = t_waiting_threads;

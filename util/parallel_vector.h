@@ -39,7 +39,7 @@ class ParallelVector {
         T pop_non_blocking();
         void push(const T &t_item);
         void stop_vector();
-        unsigned pause_empty_n_waiting_vector
+        unsigned wake_on_empty_n_waiting
             (unsigned t_waiting_threads);
 
     private:

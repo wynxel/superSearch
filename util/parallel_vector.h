@@ -22,24 +22,35 @@ class Empty : public exception {
 
 
 template <typename T>
-class ParallelVector
-{
+class ParallelVector {
     private:
         bool m_state_stop;
+        unsigned m_semaphore;
+        unsigned m_wait_limit;
         vector<T> m_vector;
         mutex m_mutex;
-        condition_variable m_cond_var;
+        condition_variable m_cv_vector;
+        condition_variable m_cv_semaphore;
 
     public:
         ParallelVector();
         ~ParallelVector();
         T pop_blocking();
         T pop_non_blocking();
-        void stop_vector();
         void push(const T &t_item);
+        void stop_vector();
+        unsigned pause_empty_n_waiting_vector
+            (unsigned t_waiting_threads);
 
     private:
         inline T pop_without_mutex();
 };
 #include "parallel_vector.cpp"
+
+/*
+this class could be extended with some other funny stuff
+like stop_vector(), resume_vector(), push_non_blocking()
+push_if_not_stopped(), pop_if_not_stopped() ...
+*/
+
 #endif

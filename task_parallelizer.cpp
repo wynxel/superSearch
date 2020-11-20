@@ -45,6 +45,7 @@ TaskParallelizer<S, T, U, C>::TaskParallelizer(const job_details t_jobs[],
         }
 
         // set-up sub-job classes and threads
+        // (assert: m_sub_job_class can't be empty)
         // or set up onlu one sub-job class:
         if (m_parallel) {
             for (unsigned i = 0; i < thread_num; i++) {
@@ -83,7 +84,11 @@ const T TaskParallelizer<S, T, U, C>::next_job_argument()
         m_single_thread_arg_shortcut = nullptr;
         return *ret_val;
     } else {
-        return m_next_job.pop_blocking();
+        try {
+            return m_next_job.pop_blocking();
+        } catch (Empty& e) {
+            throw NoMoreJob();
+        }
     }
 }
 
@@ -91,6 +96,7 @@ const T TaskParallelizer<S, T, U, C>::next_job_argument()
 // Checks super-job pointer and starts cycle
 // with start function. Breaks, if there is
 // no more job from super class.
+// exception: runtime_error, if super class is null
 template <typename S, typename T, typename U, class C>
 void TaskParallelizer<S, T, U, C>::start_parallel_cycle()
 {
@@ -110,9 +116,11 @@ void TaskParallelizer<S, T, U, C>::start_parallel_cycle()
 // that indicates, that running threads should
 // finish their job and exit. 
 // Function then notifies all sleeping threads.
+// Note: after this call, calling call_sub_job will be 
+// throwing exception.
 template <typename S, typename T, typename U, class C>
 void TaskParallelizer<S, T, U, C>::notify_sub_to_finish()
-{
+noexcept {
     if (! m_parallel) {
         return;
     } else {
@@ -126,14 +134,13 @@ void TaskParallelizer<S, T, U, C>::notify_sub_to_finish()
 // queue, in single thread: call directly 
 // sub-job function.
 // Exception:
-//  logic_error - if there is no sub_job class
-//  (no sub_job class was declared in constructor)
+//  logic_error - if m_next_job stack is stopped
+//  (this class stops m_next_job stack, only in
+//  class destructor)
 template <typename S, typename T, typename U, class C>
 void TaskParallelizer<S, T, U, C>::call_sub_job(const T &t_item)
 {
-    if (m_sub_job_class.empty()) {
-        throw logic_error(tpconst::no_sub_job_class);
-    } else if (m_parallel) {
+    if (m_parallel) {
         m_next_job.push(t_item);
     } else {
         m_single_thread_arg_shortcut = &t_item;
@@ -141,42 +148,32 @@ void TaskParallelizer<S, T, U, C>::call_sub_job(const T &t_item)
     }
 }
 
+// exception: thwos logic_error if stack is already stopped
 template <typename S, typename T, typename U, class C>
-bool TaskParallelizer<S, T, U, C>::get_result_num()
+void TaskParallelizer<S, T, U, C>::put_sub_result(U t_result)
 {
-    //TODO
-    return false;
+    m_sub_job_results.push(t_result);
 }
 
 template <typename S, typename T, typename U, class C>
-U TaskParallelizer<S, T, U, C>::get_result_blocking()
-{
-    //TODO
-    // pozri poznamku v destruktore
-    U* u = new U;
-    return *u;
-}
-
-template <typename S, typename T, typename U, class C>
-U TaskParallelizer<S, T, U, C>::get_result_non_blocking()
-{
-    //TODO
-    // co vratime ked nic nemame a nieco vratit musime? Vynimka? NoMoreJob? Ina? Nova spolocna?
-    U* u = new U;
-    return *u;
+void TaskParallelizer<S, T, U, C>::wait_to_sub_finish()
+noexcept {
+    m_next_job.wake_on_empty_n_waiting
+        (m_job_details[0].thread_number);
 }
 
 // get pointer to super class (super-job)
 // returns nullptr if no super class
 template <typename S, typename T, typename U, class C>
 TaskContainer* TaskParallelizer<S, T, U, C>::get_super_class()
-{
+noexcept {
     return m_super_job_class;
 }
 
 // Return true if multithread mode
 template <typename S, typename T, typename U, class C>
-bool TaskParallelizer<S, T, U, C>::is_parallel(){
+bool TaskParallelizer<S, T, U, C>::is_parallel()
+noexcept {
     return m_parallel;
 }
 
@@ -187,37 +184,20 @@ TaskParallelizer<S, T, U, C>::~TaskParallelizer()
     // chceck if finished flag is set:
     notify_sub_to_finish();
 
+    // this should be not necessary:
+    m_sub_job_results.stop_vector();
+
     // wait for threads:
     for (auto& elem_thread : m_threads) {
         elem_thread->join();
     }
 
-    // collect class results from sub-job classes:
-    // watch out, multithread or not
-    // notify super class that result vector will stop
-    // jawla fitta, niekde treba este vopchat funkcionalitu, ze:
-    /*
-        jedno vlakno berie nazov suboru a cita ho do buffera
-        jeho n-subvlakien v nom vyhladava
-        a teraz: super vlakno potrebuje vediet, ci uz sub vlakna dovyhladavali
-                nestaci empty vector, pretoze mozno este hladaju
-            a potrebuje to preto, ze do vypisu do konzoly treba dat nazov suboru
-    */
-   /*
-        DALSIE DOPLNENIE:
-            mozno bude potrebne vyrobit vo ParallelVectore aj semafor
-            totizto, potrebujeme vediet, kedy je pocet cakajucich threadov==poctu threadov
-            v takom pripade (mimo situacie, ze by sme zavolali push funkciu (otazka, moze sa to stat?))
-            tak mimo tejto situacie mame istotu, ze vsetky sub-job thready skoncili, resp cakaju na dalsiu
-            robotu. No a v takomto pripade mozeme bezpecne vybrat vsetky ich resulty a vypisat ich
-            pod nazvom daneho suboru. Je vsak na to potrebne implementovat semafor. Otazky su:
-                - kde ma byt ten semafor implementovany? 
-                - kde sa ma overovat ta podmienka #waiting==#thread?
-                - tyka sa tato funkcionalita TaskParallizera vseobecne alebo len nejakej derivovanej triedy?
-                - je mozne, ze tento semafor bude nieco uplne standalone?
-                    je mozne vyhnut sa m_next_job vs m_job_result deadlocku?
-   */
-
+    // process results from sub-job classes, if any left:
+    // (as process_sub_results is pure virtual, can't call
+    // it here. Although it would be nice to preventively
+    // call it in this destructor)
+    // process_sub_results();
+    
     // delete threads:
     for (auto& elem_thread : m_threads) {
         delete elem_thread;

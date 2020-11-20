@@ -10,19 +10,24 @@
 using namespace std;
 
 // errors:
-const string VECTOR_STOP = "ParallelVector is in stop "
-    "state. This means, that ParallelVector can't push "
+const string VECTOR_STOP = "ParallelStack is in stop "
+    "state. This means, that ParallelStack can't push "
     "new values. It can only pop (if not already "
-    "empty) and then ParallelVector should be destroyed.";
+    "empty) and then ParallelStack should be destroyed.";
 
 class Empty : public exception {
     public:
         Empty() : exception(){};
 };
 
-
+/*
+class ParallelStack is push-pop data structure
+based on std::vector which allows multithread
+use of push, pop, size,     stop_vector 
+and wake_on_empty_n_waiting methods
+*/
 template <typename T>
-class ParallelVector {
+class ParallelStack {
     private:
         bool m_state_stop;
         unsigned m_semaphore;
@@ -33,14 +38,15 @@ class ParallelVector {
         condition_variable m_cv_semaphore;
 
     public:
-        ParallelVector();
-        ~ParallelVector();
+        ParallelStack();
+        ~ParallelStack();
         T pop_blocking();
         T pop_non_blocking();
+        unsigned size() noexcept;
         void push(const T &t_item);
-        void stop_vector();
+        void stop_vector() noexcept;
         unsigned wake_on_empty_n_waiting
-            (unsigned t_waiting_threads);
+            (unsigned t_waiting_threads) noexcept;
 
     private:
         inline T pop_without_mutex();

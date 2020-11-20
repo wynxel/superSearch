@@ -27,6 +27,7 @@ class FileIterate : public TaskParallelizer<string, fs::path, string, FileRead>{
 
     protected:
         virtual void start();
+        void process_sub_results();
 };
 
 #endif

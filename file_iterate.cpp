@@ -40,3 +40,8 @@ void FileIterate::start()
         start(super_class->next_job_argument());
     }
 }
+
+void FileIterate::process_sub_results()
+{
+    return;
+}

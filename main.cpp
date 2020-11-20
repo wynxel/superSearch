@@ -106,9 +106,9 @@ int main(int argc, char **argv)
     // struct with program parameters:
     string path = argv[2];
     const struct job_details data[3] = {
-        {nullptr, progconst::THR_MIN, progconst::BUF_NDEF},
-        {nullptr, (unsigned) arg_t1, (unsigned) arg_buf},
-        {&path, (unsigned) arg_t2, progconst::BUF_NDEF}
+        {nullptr, (unsigned) arg_t1, progconst::BUF_NDEF},
+        {nullptr, (unsigned) arg_t2, (unsigned) arg_buf},
+        {&path, progconst::THR_MIN, progconst::BUF_NDEF}
     };
 
     // create class for managing program output:

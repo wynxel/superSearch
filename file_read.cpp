@@ -32,3 +32,8 @@ void FileRead::start()
         start(super_class->next_job_argument());
     }
 }
+
+void FileRead::process_sub_results()
+{
+    return;
+}

@@ -4,14 +4,7 @@
 /*
 
                 TODO
-        pozriet:
-         exceptions, noexcept
-        pozriet co sa da:
-            skonstantnit
-            zosmernikovat (menej kopirovani)
-            zostaticknit
-            inlinovat
-        doplnit:
+            doplnit:
             potrebne obj-oriented "povinne" funkcie
 */
 
@@ -120,9 +113,9 @@ class TaskParallelizer : public TaskContainer{
             classes by calling process_sub_results().
         */
         virtual void start(const S &t_single_job) = 0;
-        bool is_parallel() noexcept;
+        inline bool is_parallel() noexcept;
         const T next_job_argument();
-        void put_sub_result(U t_result);
+        inline void put_sub_result(const U t_result);
         ~TaskParallelizer();
 
     private:
@@ -144,7 +137,7 @@ class TaskParallelizer : public TaskContainer{
 
     protected:
         inline void wait_to_sub_finish() noexcept;
-        void call_sub_job(const T &t_item);
+        inline void call_sub_job(const T &t_item);
         inline TaskContainer* get_super_class() noexcept;
         inline void notify_sub_to_finish() noexcept;
         /*

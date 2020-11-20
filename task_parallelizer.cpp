@@ -15,11 +15,9 @@
 //      t_jobs[1] is for sub_job_class and so on...)
 //  - t_job_num: length of t_jobs
 //  - t_super_job_class: pointer to super class (if exists)
-// Class extending TaskParallelizer must define assign_sub_job_class method.
-/*TaskParallelizer(const struct job_details t_jobs[], 
-            const unsigned int t_job_num, 
-            TaskParallelizer* t_super_job_class = nullptr);
-*/
+// Class TaskParallelizer is abstract, it has pure virtual methods. 
+// Exceptions:
+//  throws invalid_argument with string message with details
 template <typename S, typename T, typename U, class C>
 TaskParallelizer<S, T, U, C>::TaskParallelizer(const job_details t_jobs[], 
     const unsigned t_job_num, TaskContainer* t_super_job_class) :
@@ -101,6 +99,9 @@ template <typename S, typename T, typename U, class C>
 void TaskParallelizer<S, T, U, C>::start_parallel_cycle()
 {
     if (m_super_job_class == nullptr) {
+        // in multithread mode, start() function will
+        // ask super job_class for job argument. If means,
+        // that m_super_job_class can't be nullptr
         throw runtime_error(tpconst::no_job_to_do);
     }
     while (true) {
@@ -138,7 +139,7 @@ noexcept {
 //  (this class stops m_next_job stack, only in
 //  class destructor)
 template <typename S, typename T, typename U, class C>
-void TaskParallelizer<S, T, U, C>::call_sub_job(const T &t_item)
+inline void TaskParallelizer<S, T, U, C>::call_sub_job(const T &t_item)
 {
     if (m_parallel) {
         m_next_job.push(t_item);
@@ -150,7 +151,7 @@ void TaskParallelizer<S, T, U, C>::call_sub_job(const T &t_item)
 
 // exception: thwos logic_error if stack is already stopped
 template <typename S, typename T, typename U, class C>
-void TaskParallelizer<S, T, U, C>::put_sub_result(U t_result)
+inline void TaskParallelizer<S, T, U, C>::put_sub_result(const U t_result)
 {
     m_sub_job_results.push(t_result);
 }
@@ -172,7 +173,7 @@ noexcept {
 
 // Return true if multithread mode
 template <typename S, typename T, typename U, class C>
-bool TaskParallelizer<S, T, U, C>::is_parallel()
+inline bool TaskParallelizer<S, T, U, C>::is_parallel()
 noexcept {
     return m_parallel;
 }

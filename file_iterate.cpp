@@ -6,8 +6,6 @@
 
 */
 #include "file_iterate.h"
-#include "task_parallelizer.h"
-#include "file_read.h"
 
 FileIterate::FileIterate(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
@@ -34,11 +32,7 @@ void FileIterate::start()
 {
     TaskParallelizer<string, string, string, FileRead>* super_class = 
         (TaskParallelizer<string, string, string, FileRead>*) get_super_class();
-    if (super_class == nullptr) {
-        start(next_job_argument());
-    } else {
-        start(super_class->next_job_argument());
-    }
+    start(super_class->next_job_argument());
 }
 
 void FileIterate::process_sub_results()

@@ -9,16 +9,14 @@
 
 #include <iostream>
 #include <string>
-#include "task_parallelizer.h"
 #include <filesystem>
+#include "util/task_parallelizer.h"
+#include "string_search.h"
 
 namespace fs = filesystem;
 using namespace std;
 
-// todo struct na offset-char*
-// bude 2,3? arg templatu?
-
-class FileRead : public TaskParallelizer<fs::path, char*, string, Terminator>{
+class FileRead : public TaskParallelizer<fs::path, segment, segment, StringSearch>{
     public:
         FileRead(const struct job_details t_jobs[], 
             const unsigned t_job_num, 

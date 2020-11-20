@@ -26,11 +26,7 @@ void FileRead::start()
 {
     TaskParallelizer<string, fs::path, string, FileRead>* super_class = 
         (TaskParallelizer<string, fs::path, string, FileRead>*) get_super_class();
-    if (super_class == nullptr) {
-        start(next_job_argument());
-    } else {
-        start(super_class->next_job_argument());
-    }
+    start(super_class->next_job_argument());
 }
 
 void FileRead::process_sub_results()

@@ -59,42 +59,42 @@ class Terminator : public TaskContainer {
 };
 
 // TaskParallelizer class
-// typename S (job input type)
+// typename IN (job input type)
 //  or super-job class output type
-// typename T (job output type)
+// typename OUT (job output type)
 //  or sub-job class input type
-// Scheme for S and T:
-//  S -> do job -> U
-//  S is obtained from super-job class
-//  U is passed to sub-job class
-// typename U (main output type (or result))
+// Scheme for IN and OUT:
+//  IN -> do job -> BCK
+//  IN is obtained from super-job class
+//  BCK is passed to sub-job class
+// typename BCK (main output type (or result))
 //  is type of result, which is produced 
 //  by this class after finishing all job
 //  and all sub-jobs, which were
 //  started by this class.
-// class C is class processing sub jobs
+// class SBJB is class processing sub jobs
 //  must be derived from TaskParallelizer. 
 //  if there will be no more sub jobs, use
 //  Terminator class.
 
-//template <typename S, typename T, class C, 
-//    class = typename enable_if<is_base_of<TaskContainer, C>::value>::type>
-//typename enable_if<is_base_of<TaskParallelizer, C>::value, C>::type
-template <typename S, typename T, typename U, class C>
+//template <typename IN, typename OUT, class SBJB, 
+//    class = typename enable_if<is_base_of<TaskContainer, SBJB>::value>::type>
+//typename enable_if<is_base_of<TaskParallelizer, SBJB>::value, SBJB>::type
+template <typename IN, typename OUT, typename BCK, class SBJB>
 class TaskParallelizer : public TaskContainer{
 
     protected:
         const bool m_parallel;
         const job_details* m_job_details;    
-        ParallelStack<U> m_sub_job_results;
+        ParallelStack<BCK> m_sub_job_results;
 
     private:
         const unsigned m_job_details_num;
-        ParallelStack<T> m_next_job;
+        ParallelStack<OUT> m_next_job;
         vector<TaskContainer*> m_sub_job_class;
         vector<thread*> m_threads;
         TaskContainer* m_super_job_class;
-        const T* m_single_thread_arg_shortcut;
+        OUT* m_single_thread_arg_shortcut;
         bool m_job_finish;
 
     public:
@@ -102,20 +102,20 @@ class TaskParallelizer : public TaskContainer{
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class = nullptr);
         /* 
-            Main function: void start(const S &t_single_job)
+            Main function: void start(IN &t_single_job)
             This function should do it's job according to:
                 1) t_single_job parameter
                 2) m_job_details[0] informations
             Result, of this job should be passed to
-            call_sub_job(const T &t_item) function (which then
+            call_sub_job(OUT &t_item) function (which then
             pass this result to sub-job class(es)).
             This function should then process result from sub-job
             classes by calling process_sub_results().
         */
-        virtual void start(const S &t_single_job) = 0;
+        virtual void start(IN &t_single_job) = 0;
         inline bool is_parallel() noexcept;
-        const T next_job_argument();
-        inline void put_sub_result(const U t_result);
+        OUT next_job_argument();
+        inline void put_sub_result(BCK &t_result);
         ~TaskParallelizer();
 
     private:
@@ -140,7 +140,7 @@ class TaskParallelizer : public TaskContainer{
 
     protected:
         inline void wait_to_sub_finish() noexcept;
-        inline void call_sub_job(const T &t_item);
+        inline void call_sub_job(OUT &t_item);
         inline TaskContainer* get_super_class() noexcept;
         inline void notify_sub_to_finish() noexcept;
         /*
@@ -155,7 +155,6 @@ class TaskParallelizer : public TaskContainer{
         */
         virtual void process_sub_results() = 0;
 };
-
 
 
 #include "task_parallelizer.cpp"

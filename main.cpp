@@ -104,11 +104,11 @@ int main(int argc, char **argv)
     }
 
     // struct with program parameters:
-    string path = argv[2];
+    string match = argv[2];
     const struct job_details data[3] = {
         {nullptr, (unsigned) arg_t1, progconst::BUF_NDEF},
         {nullptr, (unsigned) arg_t2, (unsigned) arg_buf},
-        {&path, progconst::THR_MIN, progconst::BUF_NDEF}
+        {&match, progconst::THR_MIN, progconst::BUF_NDEF}
     };
 
     // create class for managing program output:
@@ -117,7 +117,8 @@ int main(int argc, char **argv)
     // run search:
     try {
         FileIterate search(data, 3);
-        search.start(string(argv[1]));   
+        string path = string(argv[1]);
+        search.start(path);   
     } catch(const fs::filesystem_error& e) {
         std::cerr << progconst::file_error << e.what() << endl;
         return EXIT_FAILURE;

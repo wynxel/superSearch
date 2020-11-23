@@ -1,5 +1,5 @@
-#ifndef DISK_ITERATE_H
-#define DISK_ITERATE_H
+#ifndef STRING_SEARCH_H
+#define STRING_SEARCH_H
 
 /*
 
@@ -11,19 +11,23 @@
 #include <string>
 #include <filesystem>
 #include "util/task_parallelizer.h"
-#include "file_read.h"
 
 namespace fs = filesystem;
 
+typedef struct segment{
+    const unsigned offset;
+    const char* const data;
+} segment;
+
 using namespace std;
 
-class FileIterate : public TaskParallelizer<string, fs::path, string, FileRead>{
+class StringSearch : public TaskParallelizer<segment*, int, segment*, Terminator>{
     public:
-        FileIterate(const struct job_details t_jobs[], 
+        StringSearch(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class = nullptr);
-        void start(string &t_path);
-        ~FileIterate();
+        void start(segment* &t_path); 
+        ~StringSearch();
 
     protected:
         virtual void start();

@@ -18,8 +18,8 @@
 // Class TaskParallelizer is abstract, it has pure virtual methods. 
 // Exceptions:
 //  throws invalid_argument with string message with details
-template <typename S, typename T, typename U, class C>
-TaskParallelizer<S, T, U, C>::TaskParallelizer(const job_details t_jobs[], 
+template <typename IN, typename OUT, typename BCK, class SBJB>
+TaskParallelizer<IN, OUT, BCK, SBJB>::TaskParallelizer(const job_details t_jobs[], 
     const unsigned t_job_num, TaskContainer* t_super_job_class) :
     m_parallel(t_jobs[0].thread_number > tpconst::NO_THREAD ? true : false),
     m_job_details(t_jobs),
@@ -47,7 +47,7 @@ TaskParallelizer<S, T, U, C>::TaskParallelizer(const job_details t_jobs[],
         // or set up onlu one sub-job class:
         if (m_parallel) {
             for (unsigned i = 0; i < thread_num; i++) {
-                C* sub_job_class = new C(t_jobs + 1, t_job_num - 1, this);
+                SBJB* sub_job_class = new SBJB(t_jobs + 1, t_job_num - 1, this);
                 thread* job_thread = new thread(&TaskContainer::start_parallel_cycle, 
                     sub_job_class);
                 // add to vector:
@@ -55,30 +55,30 @@ TaskParallelizer<S, T, U, C>::TaskParallelizer(const job_details t_jobs[],
                 m_threads.push_back(job_thread);
             }
         } else {
-            m_sub_job_class.push_back(new C(t_jobs + 1, t_job_num - 1, this));
+            m_sub_job_class.push_back(new SBJB(t_jobs + 1, t_job_num - 1, this));
         }
     }
 
 // Use only in multithread mode (otherwise 
 // logical_error exception).
-// Function returns T value, which represents
+// Function returns OUT value, which represents
 // next job to be done.
 // If super-job thread is still working, but queue
 // with jobs is currently empty, thread calling this
 // function will go to waiting state untill super-job
-// class makes new job T value.
+// class makes new job OUT value.
 // Exception:
 //  If super-job class finished, this function will
 //  throw "NoMoreJob" exception indicating, that theread,
 //  which called this function should finish. 
-template <typename S, typename T, typename U, class C>
-const T TaskParallelizer<S, T, U, C>::next_job_argument()
+template <typename IN, typename OUT, typename BCK, class SBJB>
+OUT TaskParallelizer<IN, OUT, BCK, SBJB>::next_job_argument()
 {
     if (!m_parallel) {
         if (m_single_thread_arg_shortcut == nullptr) {
             throw NoMoreJob();
         }
-        const T* ret_val = m_single_thread_arg_shortcut;
+        OUT* ret_val = m_single_thread_arg_shortcut;
         m_single_thread_arg_shortcut = nullptr;
         return *ret_val;
     } else {
@@ -95,8 +95,8 @@ const T TaskParallelizer<S, T, U, C>::next_job_argument()
 // with start function. Breaks, if there is
 // no more job from super class.
 // exception: runtime_error, if super class is null
-template <typename S, typename T, typename U, class C>
-void TaskParallelizer<S, T, U, C>::start_parallel_cycle()
+template <typename IN, typename OUT, typename BCK, class SBJB>
+void TaskParallelizer<IN, OUT, BCK, SBJB>::start_parallel_cycle()
 {
     if (m_super_job_class == nullptr) {
         // in multithread mode, start() function will
@@ -119,8 +119,8 @@ void TaskParallelizer<S, T, U, C>::start_parallel_cycle()
 // Function then notifies all sleeping threads.
 // Note: after this call, calling call_sub_job will be 
 // throwing exception.
-template <typename S, typename T, typename U, class C>
-void TaskParallelizer<S, T, U, C>::notify_sub_to_finish()
+template <typename IN, typename OUT, typename BCK, class SBJB>
+void TaskParallelizer<IN, OUT, BCK, SBJB>::notify_sub_to_finish()
 noexcept {
     if (! m_parallel) {
         return;
@@ -129,7 +129,7 @@ noexcept {
     }
 }
 
-// This function passes T value representing 
+// This function passes OUT value representing 
 // job to be done to next class which should 
 // process it. In multithread mode: only add to
 // queue, in single thread: call directly 
@@ -138,8 +138,8 @@ noexcept {
 //  logic_error - if m_next_job stack is stopped
 //  (this class stops m_next_job stack, only in
 //  class destructor)
-template <typename S, typename T, typename U, class C>
-inline void TaskParallelizer<S, T, U, C>::call_sub_job(const T &t_item)
+template <typename IN, typename OUT, typename BCK, class SBJB>
+inline void TaskParallelizer<IN, OUT, BCK, SBJB>::call_sub_job(OUT &t_item)
 {
     if (m_parallel) {
         m_next_job.push(t_item);
@@ -150,14 +150,14 @@ inline void TaskParallelizer<S, T, U, C>::call_sub_job(const T &t_item)
 }
 
 // exception: thwos logic_error if stack is already stopped
-template <typename S, typename T, typename U, class C>
-inline void TaskParallelizer<S, T, U, C>::put_sub_result(const U t_result)
+template <typename IN, typename OUT, typename BCK, class SBJB>
+inline void TaskParallelizer<IN, OUT, BCK, SBJB>::put_sub_result(BCK &t_result)
 {
     m_sub_job_results.push(t_result);
 }
 
-template <typename S, typename T, typename U, class C>
-void TaskParallelizer<S, T, U, C>::wait_to_sub_finish()
+template <typename IN, typename OUT, typename BCK, class SBJB>
+void TaskParallelizer<IN, OUT, BCK, SBJB>::wait_to_sub_finish()
 noexcept {
     m_next_job.wake_on_empty_n_waiting
         (m_job_details[0].thread_number);
@@ -165,22 +165,22 @@ noexcept {
 
 // get pointer to super class (super-job)
 // returns nullptr if no super class
-template <typename S, typename T, typename U, class C>
-TaskContainer* TaskParallelizer<S, T, U, C>::get_super_class()
+template <typename IN, typename OUT, typename BCK, class SBJB>
+TaskContainer* TaskParallelizer<IN, OUT, BCK, SBJB>::get_super_class()
 noexcept {
     return m_super_job_class;
 }
 
 // Return true if multithread mode
-template <typename S, typename T, typename U, class C>
-inline bool TaskParallelizer<S, T, U, C>::is_parallel()
+template <typename IN, typename OUT, typename BCK, class SBJB>
+inline bool TaskParallelizer<IN, OUT, BCK, SBJB>::is_parallel()
 noexcept {
     return m_parallel;
 }
 
 // Destructor
-template <typename S, typename T, typename U, class C>
-TaskParallelizer<S, T, U, C>::~TaskParallelizer()
+template <typename IN, typename OUT, typename BCK, class SBJB>
+TaskParallelizer<IN, OUT, BCK, SBJB>::~TaskParallelizer()
 {
     // chceck if finished flag is set:
     notify_sub_to_finish();

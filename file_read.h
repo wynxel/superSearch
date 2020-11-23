@@ -16,16 +16,16 @@
 namespace fs = filesystem;
 using namespace std;
 
-class FileRead : public TaskParallelizer<fs::path, segment, segment, StringSearch>{
+class FileRead : public TaskParallelizer<fs::path, segment*, segment*, StringSearch>{
     public:
         FileRead(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class = nullptr);
-        ~FileRead();
+        virtual void start(fs::path &t_path);
+        ~FileRead(); // DELETE OUT SEGMENTS!
 
     protected:
         virtual void start();
-        virtual void start(const fs::path &t_path);
         void process_sub_results();
 };
 

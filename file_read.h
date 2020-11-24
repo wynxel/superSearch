@@ -10,8 +10,10 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
+#include <cstdio>
 #include "util/task_parallelizer.h"
 #include "string_search.h"
+#include "const.h"
 
 namespace fs = filesystem;
 using namespace std;
@@ -27,6 +29,12 @@ class FileRead : public TaskParallelizer<fs::path, segment*, segment*, StringSea
     protected:
         virtual void start();
         void process_sub_results();
+
+    private:
+        unsigned m_buffer_len;
+        unsigned m_seg_len;
+        char* m_buffer;
+        vector<segment*> garbage;
 };
 
 #endif

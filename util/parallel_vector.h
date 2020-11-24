@@ -43,7 +43,7 @@ class ParallelStack {
         T pop_blocking();
         T pop_non_blocking();
         unsigned size() noexcept;
-        void push(const T &t_item);
+        void push(T &t_item);
         void stop_vector() noexcept;
         unsigned wake_on_empty_n_waiting
             (unsigned t_waiting_threads) noexcept;
@@ -73,7 +73,7 @@ class ParallelStack<T*>{
         T* pop_blocking();
         T* pop_non_blocking();
         unsigned size() noexcept;
-        void push(const T* t_item);
+        void push(T* t_item);
         void stop_vector() noexcept;
         unsigned wake_on_empty_n_waiting
             (unsigned t_waiting_threads) noexcept;

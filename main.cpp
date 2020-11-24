@@ -48,6 +48,7 @@ int main(int argc, char **argv)
     // parse switches:
     int arg_t1 = (int) progconst::THR_MIN;
     int arg_t2 = (int) progconst::THR_MIN;
+    int arg_in_buf = (int) progconst::IBUF_DEF;
     int arg_buf = (int) progconst::BUF_DEF;
     int arg_idx = 3;
     while (arg_idx + 1 < argc) {
@@ -67,6 +68,12 @@ int main(int argc, char **argv)
         } else if (string(argv[arg_idx]) ==  progconst::arg_t2_buf){
             // switch "-buf"
             if (!stoi_exception(&arg_buf, argv[arg_idx + 1])) {
+                cout << progconst::not_number << argv[arg_idx + 1] << endl;
+                return arg_error_exit();
+            }
+        } else if (string(argv[arg_idx]) ==  progconst::arg_in_buf){
+            // switch "-ib"
+            if (!stoi_exception(&arg_in_buf, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
                 return arg_error_exit();
             }
@@ -96,6 +103,11 @@ int main(int argc, char **argv)
         cout << progconst::wrong_value_buf << endl;
         return arg_error_exit();
     }
+   if (arg_in_buf < (int) progconst::IBUF_MIN 
+        || arg_buf > (int) progconst::IBUF_MAX) {
+        cout << progconst::wrong_value_ibuf << endl;
+        return arg_error_exit();
+    }
 
     // check file path:
     if (!fs::exists(string(argv[1]))) {
@@ -107,7 +119,7 @@ int main(int argc, char **argv)
     string match = argv[2];
     const struct job_details data[3] = {
         {nullptr, (unsigned) arg_t1, progconst::BUF_NDEF},
-        {nullptr, (unsigned) arg_t2, (unsigned) arg_buf},
+        {(int*) &arg_in_buf, (unsigned) arg_t2, (unsigned) arg_buf},
         {&match, progconst::THR_MIN, progconst::BUF_NDEF}
     };
 

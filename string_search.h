@@ -16,7 +16,8 @@ namespace fs = filesystem;
 
 typedef struct segment{
     const unsigned offset;
-    const char* const data;
+    const unsigned length;
+    char* data;
 } segment;
 
 using namespace std;

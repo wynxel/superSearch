@@ -26,6 +26,7 @@ void StringSearch::start(segment* &t_path)
         vyries otazku kto ma na zodpovednosti delete tych vysledkov pushnutych
          do super triedy
     */ 
+    cout << "zeby sa nepovedalo " << t_path->length << endl;
     return;
 }
 

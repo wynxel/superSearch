@@ -25,7 +25,7 @@ TaskParallelizer<IN, OUT, BCK, SBJB>::TaskParallelizer(const job_details t_jobs[
     m_job_details(t_jobs),
     m_job_details_num(t_job_num),
     m_super_job_class(t_super_job_class),
-    m_single_thread_arg_shortcut(nullptr),
+    m_shortcut_enable(false),
     m_job_finish(false)
     {
         // check: thread number, segment size, job details length:
@@ -75,12 +75,11 @@ template <typename IN, typename OUT, typename BCK, class SBJB>
 OUT TaskParallelizer<IN, OUT, BCK, SBJB>::next_job_argument()
 {
     if (!m_parallel) {
-        if (m_single_thread_arg_shortcut == nullptr) {
+        if (! m_shortcut_enable) {
             throw NoMoreJob();
         }
-        OUT* ret_val = m_single_thread_arg_shortcut;
-        m_single_thread_arg_shortcut = nullptr;
-        return *ret_val;
+        m_shortcut_enable = false;
+        return m_single_thread_arg_shortcut;
     } else {
         try {
             return m_next_job.pop_blocking();
@@ -139,12 +138,13 @@ noexcept {
 //  (this class stops m_next_job stack, only in
 //  class destructor)
 template <typename IN, typename OUT, typename BCK, class SBJB>
-inline void TaskParallelizer<IN, OUT, BCK, SBJB>::call_sub_job(OUT &t_item)
+inline void TaskParallelizer<IN, OUT, BCK, SBJB>::call_sub_job(OUT t_item)
 {
     if (m_parallel) {
         m_next_job.push(t_item);
     } else {
-        m_single_thread_arg_shortcut = &t_item;
+        m_single_thread_arg_shortcut = t_item;
+        m_shortcut_enable = true;
         m_sub_job_class[0]->start();
     }
 }

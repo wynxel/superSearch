@@ -94,7 +94,8 @@ class TaskParallelizer : public TaskContainer{
         vector<TaskContainer*> m_sub_job_class;
         vector<thread*> m_threads;
         TaskContainer* m_super_job_class;
-        OUT* m_single_thread_arg_shortcut;
+        OUT m_single_thread_arg_shortcut;
+        bool m_shortcut_enable;
         bool m_job_finish;
 
     public:
@@ -140,7 +141,7 @@ class TaskParallelizer : public TaskContainer{
 
     protected:
         inline void wait_to_sub_finish() noexcept;
-        inline void call_sub_job(OUT &t_item);
+        inline void call_sub_job(OUT t_item);
         inline TaskContainer* get_super_class() noexcept;
         inline void notify_sub_to_finish() noexcept;
         /*

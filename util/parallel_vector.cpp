@@ -119,7 +119,7 @@ unsigned ParallelStack<T>
 // push to stack
 // exception: if stack is in stop state, thwos logic_error
 template <typename T>
-void ParallelStack<T>::push(const T &t_item)
+void ParallelStack<T>::push(T &t_item)
 {
     {
         unique_lock<mutex> lock(m_mutex);

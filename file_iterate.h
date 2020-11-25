@@ -19,9 +19,8 @@ using namespace std;
 
 class FileIterate : public TaskParallelizer<string, fs::path, string, FileRead>{
     public:
-        FileIterate(const struct job_details t_jobs[], 
-            const unsigned t_job_num, 
-            TaskContainer* t_super_job_class = nullptr);
+        FileIterate(const struct job_details t_jobs[], const unsigned t_job_num, 
+            TaskContainer* t_super_job_class = nullptr, const int t_id = -1);
         void start(string &t_path);
         ~FileIterate();
 

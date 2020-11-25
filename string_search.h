@@ -24,9 +24,8 @@ using namespace std;
 
 class StringSearch : public TaskParallelizer<segment*, int, segment*, Terminator>{
     public:
-        StringSearch(const struct job_details t_jobs[], 
-            const unsigned t_job_num, 
-            TaskContainer* t_super_job_class = nullptr);
+        StringSearch(const struct job_details t_jobs[], const unsigned t_job_num, 
+            TaskContainer* t_super_job_class = nullptr, const int t_id = -1);
         void start(segment* &t_path); 
         ~StringSearch();
 

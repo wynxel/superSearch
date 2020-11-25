@@ -20,7 +20,9 @@
 //  throws invalid_argument with string message with details
 template <typename IN, typename OUT, typename BCK, class SBJB>
 TaskParallelizer<IN, OUT, BCK, SBJB>::TaskParallelizer(const job_details t_jobs[], 
-    const unsigned t_job_num, TaskContainer* t_super_job_class) :
+    const unsigned t_job_num, TaskContainer* t_super_job_class,
+    const int t_id) :
+    m_class_id(t_id),
     m_parallel(t_jobs[0].thread_number > tpconst::NO_THREAD ? true : false),
     m_job_details(t_jobs),
     m_job_details_num(t_job_num),
@@ -47,7 +49,7 @@ TaskParallelizer<IN, OUT, BCK, SBJB>::TaskParallelizer(const job_details t_jobs[
         // or set up onlu one sub-job class:
         if (m_parallel) {
             for (unsigned i = 0; i < thread_num; i++) {
-                SBJB* sub_job_class = new SBJB(t_jobs + 1, t_job_num - 1, this);
+                SBJB* sub_job_class = new SBJB(t_jobs + 1, t_job_num - 1, this, i);
                 thread* job_thread = new thread(&TaskContainer::start_parallel_cycle, 
                     sub_job_class);
                 // add to vector:

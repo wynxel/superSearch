@@ -84,6 +84,7 @@ template <typename IN, typename OUT, typename BCK, class SBJB>
 class TaskParallelizer : public TaskContainer{
 
     protected:
+        const int m_class_id;
         const bool m_parallel;
         const job_details* m_job_details;    
         ParallelStack<BCK> m_sub_job_results;
@@ -101,7 +102,8 @@ class TaskParallelizer : public TaskContainer{
     public:
         TaskParallelizer(const job_details t_jobs[], 
             const unsigned t_job_num, 
-            TaskContainer* t_super_job_class = nullptr);
+            TaskContainer* t_super_job_class = nullptr,
+            const int t_id = -1);
         /* 
             Main function: void start(IN &t_single_job)
             This function should do it's job according to:

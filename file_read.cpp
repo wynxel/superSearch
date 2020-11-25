@@ -9,44 +9,52 @@
 
 FileRead::FileRead(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
-            TaskContainer* t_super_job_class) 
-            : TaskParallelizer(t_jobs, t_job_num, t_super_job_class),
-            m_buffer_len(*((int*) m_job_details->job_detail)),
-            m_seg_len(m_job_details->job_segment_size)
+            TaskContainer* t_super_job_class, const int t_id) 
+            : TaskParallelizer(t_jobs, t_job_num, t_super_job_class, t_id),
+            m_seg_len(m_job_details->job_segment_size),
+            m_overlap(((string*) t_jobs[1].job_detail)->length() - 1)
             {
+                unsigned desired_buf = *((int*) m_job_details->job_detail);
+
                 // check values:
-                if(m_buffer_len < progconst::IBUF_MIN
-                    || m_buffer_len > progconst::IBUF_MAX) {
+                if(desired_buf < progconst::RBUF_MIN
+                    || desired_buf > progconst::RBUF_MAX) {
                         throw invalid_argument(progconst::wrong_value_ibuf);
                     }
-                if(m_seg_len < progconst::BUF_MIN
-                    || m_seg_len > progconst::BUF_MAX) {
+                if(m_seg_len < progconst::SBUF_MIN
+                    || m_seg_len > progconst::SBUF_MAX) {
                         throw invalid_argument(progconst::wrong_value_buf);
                     }
 
-                unsigned desired_buf = *((int*) m_job_details->job_detail);
-                unsigned desired_seg = m_job_details->job_segment_size;
-
                 // check segment-buffer ratio:
-                if (desired_seg > desired_buf) {
+                if (m_seg_len > desired_buf) {
                     throw invalid_argument(progconst::segment_vs_buffer);
                 }
 
-                // alighn buffer-segment lengths:
-                // [segment size][segment siez] ... [segment size -1] 
-                // | -->               BUFFER SIZE                  |
+                // alighn buffer-segment lengths
+                // buffer should be n*segment size + segment size-1:
+                // [segment size][segment siez] ... [(match string length) - 1] 
+                // | -->               BUFFER SIZE                            |
                 // Buffer size can be max: *((int*) m_job_details->job_detail)
-                unsigned num_of_seg = desired_buf / desired_seg;
-                unsigned reminder =  desired_buf % desired_seg;
+                unsigned num_of_seg = desired_buf / m_seg_len;
+                unsigned reminder =  desired_buf % m_seg_len;
 
                 // check usefullness of multithread:
                 if (m_parallel && num_of_seg < m_job_details->thread_number) {
                     cerr << progconst::warn_thread_vs_segment << endl;
                 }
 
-                if (reminder != (desired_seg - 1)) {
+                // set correct m_buffer_len:
+                /*if (reminder == m_overlap) {
+                    m_buffer_len = desired_buf;
+                } else {
                     num_of_seg--;
-                    m_buffer_len = num_of_seg * desired_seg + desired_seg - 1;
+                    m_buffer_len = num_of_seg * m_seg_len + m_seg_len - 1;
+                }*/
+
+                if (reminder != (m_seg_len - 1)) {
+                    num_of_seg--;
+                    m_buffer_len = num_of_seg * m_seg_len + m_seg_len - 1;
                 } else {
                     m_buffer_len = desired_buf;
                 }

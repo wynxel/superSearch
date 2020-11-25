@@ -17,19 +17,20 @@ namespace progconst{
     const unsigned THR_MIN = 0;
     const unsigned THR_MAX = 10;
     const unsigned BUF_NDEF = 0;
-    const unsigned BUF_MIN = 1;
-    const unsigned BUF_MAX = 10000;
-    const unsigned BUF_MULT = 1000;
-    const unsigned BUF_DEF = 1000;
-    const unsigned IBUF_MIN = 512;
-    const unsigned IBUF_DEF = 6000000;
-    const unsigned IBUF_MAX = 500000000;
+    const unsigned SBUF_MIN = 128;
+    const unsigned SBUF_MAX = 1500000;
+    const unsigned SBUF_DEF = 8192;
+    const unsigned RBUF_MIN = 512;
+    const unsigned RBUF_DEF = 6000000;
+    const unsigned RBUF_MAX = 500000000;
+    const unsigned SBUF_DEF_RATIO = 2;
+    const unsigned RBUF_DEF_RATIO = 10;
 
     // switches: 
-    const string arg_t1 = "-t1";
-    const string arg_t2 = "-t2";
-    const string arg_in_buf = "-ib";
-    const string arg_t2_buf = "-buf";
+    const string switch_t1 = "-t1";
+    const string switch_t2 = "-t2";
+    const string switch_rbuf = "-ib";
+    const string switch_sbuf = "-buf";
 
     // manual: 
     const string manual = boost::str(boost::format{"Ussage: search PATH PATTERN [OPTIONS]\nOptions:"
@@ -38,11 +39,11 @@ namespace progconst{
         "\n\t-t2  NUM\t run search in each file with max NUM threads"
         "\n\t\t\t min: %3%, max: %4%, single thread (default): %3%"
         "\n\t-buf NUM\t if -t2 > 1, split file to segments of size NUM and search in segments in parallel"
-        "\n\t\t\t min: %5%, max: %6% (X %7% bites, default: %8%)"
+        "\n\t\t\t min: %5%, max: %6% (default: %7%)"
         "\n\t-ib  NUM\t size of file reading buffer. Best option is to set it to L3 cache size."
-        "\n\t\t\t min: %9%, max: %10% (default: %11%)"} 
-        % THR_MIN % THR_MAX % THR_MIN % THR_MAX % BUF_MIN % BUF_MAX % BUF_MULT 
-        % BUF_DEF % IBUF_MIN % IBUF_MAX % IBUF_DEF);
+        "\n\t\t\t min: %8%, max: %9% (default: %10%)"} 
+        % THR_MIN % THR_MAX % THR_MIN % THR_MAX % SBUF_MIN % SBUF_MAX 
+        % SBUF_DEF % RBUF_MIN % RBUF_MAX % RBUF_DEF);
 
     // argument errors:
     const string arg_few = "Error: not enough arguments.";
@@ -54,9 +55,12 @@ namespace progconst{
     const string wrong_value_t2 = boost::str(boost::format{"Error: use min %1% and max %2% threads for -t2."} 
         % THR_MIN % THR_MAX);
     const string wrong_value_buf = boost::str(boost::format{"Error: use min %1% and max %2% for segment buffer size."} 
-        % BUF_MIN % BUF_MAX);
+        % SBUF_MIN % SBUF_MAX);
     const string wrong_value_ibuf = boost::str(boost::format{"Error: use min %1% and max %2% for reading buffer size."} 
-        % IBUF_MIN % IBUF_MAX);
+        % RBUF_MIN % RBUF_MAX);
+    const string match_vs_segment = "Error: provided segment length is smaller than length of string, which is to be "
+        "found in this segment.";
+    const string read_buf_vs_segment = "Error: read buffer can't be smaller than segment size.";
 
     // program errors:
     const string file_error = "Unexpected error: ";
@@ -64,7 +68,8 @@ namespace progconst{
     const string file_open_error = "Can't open file: ";
     const string segment_vs_buffer = "Segment size is bigger than read buffer size.";
     const string warn_thread_vs_segment = "Read buffer size offers not enought segments for threads. "
-        "Try to change ratio of reading buffer size, segment size and number of threads.";
+        "Try to change ratio of reading buffer size, segment size and number of threads. Program will "
+        "not stop, but it may be ineffective.";
 
 
     // runtime exceptions:

@@ -20,9 +20,8 @@ using namespace std;
 
 class FileRead : public TaskParallelizer<fs::path, segment*, segment*, StringSearch>{
     public:
-        FileRead(const struct job_details t_jobs[], 
-            const unsigned t_job_num, 
-            TaskContainer* t_super_job_class = nullptr);
+        FileRead(const struct job_details t_jobs[], const unsigned t_job_num, 
+            TaskContainer* t_super_job_class = nullptr, const int t_id = -1);
         virtual void start(fs::path &t_path);
         ~FileRead(); // DELETE OUT SEGMENTS!
 
@@ -31,8 +30,9 @@ class FileRead : public TaskParallelizer<fs::path, segment*, segment*, StringSea
         void process_sub_results();
 
     private:
+        const unsigned m_seg_len;
+        const unsigned m_overlap;
         unsigned m_buffer_len;
-        unsigned m_seg_len;
         char* m_buffer;
         vector<segment*> garbage;
 };

@@ -9,8 +9,8 @@
 
 StringSearch::StringSearch(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
-            TaskContainer* t_super_job_class) 
-            : TaskParallelizer(t_jobs, t_job_num, t_super_job_class){};
+            TaskContainer* t_super_job_class, const int t_id) 
+            : TaskParallelizer(t_jobs, t_job_num, t_super_job_class, t_id){};
 
 StringSearch::~StringSearch(){};
 

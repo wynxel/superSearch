@@ -63,6 +63,21 @@ unsigned ParallelStack<T>::size() noexcept
     return m_vector.size();
 }
 
+template <typename T>
+bool ParallelStack<T>::empty() noexcept
+{
+    unique_lock<mutex> lock(m_mutex);
+    return m_vector.empty();
+}
+
+template <typename T>
+void ParallelStack<T>::sort()
+{
+    unique_lock<mutex> lock(m_mutex);
+    if (m_vector.size() > 1) {
+        sort(m_vector.begin(), m_vector.end());
+    }
+}
 
 // set vector to stop state
 // In stop state, push method will throw

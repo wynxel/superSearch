@@ -17,7 +17,7 @@ namespace fs = filesystem;
 
 using namespace std;
 
-class FileIterate : public TaskParallelizer<string, fs::path, string, FileRead>{
+class FileIterate : public TaskParallelizer<string, fs::path, int, FileRead>{
     public:
         FileIterate(const struct job_details t_jobs[], const unsigned t_job_num, 
             TaskContainer* t_super_job_class = nullptr, const int t_id = -1);

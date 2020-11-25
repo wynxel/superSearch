@@ -70,6 +70,9 @@ namespace progconst{
     const string warn_thread_vs_segment = "Read buffer size offers not enought segments for threads. "
         "Try to change ratio of reading buffer size, segment size and number of threads. Program will "
         "not stop, but it may be ineffective.";
+    const string read_less = "Error: read function returned less characters as expected. On file: ";
+    const string read_less_again = "Error: read function once again returned less characters as expected. "
+        " Due to this error, skipping problem file: ";
 
 
     // runtime exceptions:

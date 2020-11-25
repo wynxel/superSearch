@@ -14,8 +14,12 @@ StringSearch::StringSearch(const struct job_details t_jobs[],
 
 StringSearch::~StringSearch(){};
 
-void StringSearch::start(segment* &t_path)
+void StringSearch::start(segment* &t_seg)
 {
+    /*
+        na vstupe je c char array. Neviem, ako v nom vyhladavat. C++ find robi so stringami
+    */
+    
     /*
         vyhladaj v segmente
         pre kazdy vysky vytvor segment (alebo urob iny struct na to, 
@@ -26,14 +30,15 @@ void StringSearch::start(segment* &t_path)
         vyries otazku kto ma na zodpovednosti delete tych vysledkov pushnutych
          do super triedy
     */ 
-    cout << "zeby sa nepovedalo " << t_path->length << endl;
+    result* res = new result{"sdd", "fw", t_seg->offset};
+    ((TaskParallelizer<fs::path, segment*, result*, StringSearch>*)get_super_class())->put_sub_result(res);
     return;
 }
 
 void StringSearch::start()
 {
-    TaskParallelizer<fs::path, segment*, segment*, StringSearch>* super_class = 
-        (TaskParallelizer<fs::path, segment*, segment*, StringSearch>*) get_super_class();
+    TaskParallelizer<fs::path, segment*, result*, StringSearch>* super_class = 
+        (TaskParallelizer<fs::path, segment*, result*, StringSearch>*) get_super_class();
     segment* next_segm = super_class->next_job_argument();
     start(next_segm);
 }

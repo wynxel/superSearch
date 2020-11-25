@@ -50,12 +50,10 @@ class TaskContainer{
 // be never used. So for such cases, use this class:
 class Terminator : public TaskContainer {
     public: 
-        Terminator(const job_details t_jobs[], 
-            const unsigned t_job_num, 
-            TaskContainer* t_super_job_class = nullptr){};
+        Terminator(const job_details t_jobs[], const unsigned t_job_num, 
+            TaskContainer* t_super_job_class = nullptr, const int t_id = -1){};
         void start() {};
         void start_parallel_cycle() {};
-
 };
 
 // TaskParallelizer class
@@ -77,6 +75,7 @@ class Terminator : public TaskContainer {
 //  if there will be no more sub jobs, use
 //  Terminator class.
 
+// TODO: force SBJB to be subclass of TaskParallelizer:
 //template <typename IN, typename OUT, class SBJB, 
 //    class = typename enable_if<is_base_of<TaskContainer, SBJB>::value>::type>
 //typename enable_if<is_base_of<TaskParallelizer, SBJB>::value, SBJB>::type

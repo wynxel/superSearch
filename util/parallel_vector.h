@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <exception>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -42,7 +43,9 @@ class ParallelStack {
         ~ParallelStack();
         T pop_blocking();
         T pop_non_blocking();
+        void sort();
         unsigned size() noexcept;
+        bool empty() noexcept;
         void push(T &t_item);
         void stop_vector() noexcept;
         unsigned wake_on_empty_n_waiting
@@ -72,7 +75,9 @@ class ParallelStack<T*>{
         ~ParallelStack();
         T* pop_blocking();
         T* pop_non_blocking();
+        void sort();
         unsigned size() noexcept;
+        bool empty() noexcept;
         void push(T* t_item);
         void stop_vector() noexcept;
         unsigned wake_on_empty_n_waiting
@@ -80,6 +85,7 @@ class ParallelStack<T*>{
 
     private:
         inline T* pop_without_mutex();
+        static bool ptr_compare(const T* elem1,const T* elem2);
 };
 #include "parallel_vector_pointer.cpp"
 

@@ -18,7 +18,7 @@
 namespace fs = filesystem;
 using namespace std;
 
-class FileRead : public TaskParallelizer<fs::path, segment*, segment*, StringSearch>{
+class FileRead : public TaskParallelizer<fs::path, segment*, result*, StringSearch>{
     public:
         FileRead(const struct job_details t_jobs[], const unsigned t_job_num, 
             TaskContainer* t_super_job_class = nullptr, const int t_id = -1);
@@ -30,11 +30,13 @@ class FileRead : public TaskParallelizer<fs::path, segment*, segment*, StringSea
         void process_sub_results();
 
     private:
-        const unsigned m_seg_len;
+        const unsigned m_sbuf_len;
         const unsigned m_overlap;
-        unsigned m_buffer_len;
-        char* m_buffer;
-        vector<segment*> garbage;
+        const unsigned m_rbuf_len;
+        fs::path m_file_path;
+        char* m_rbuf;
+        vector<segment*> garb_collect;
+        inline void clear_collector();
 };
 
 #endif

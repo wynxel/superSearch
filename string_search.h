@@ -20,9 +20,31 @@ typedef struct segment{
     char* data;
 } segment;
 
+typedef struct result{
+    const char* prefix;
+    const char* sufix;
+    const unsigned offset;
+
+    bool operator >(const result& other) const {
+        return offset > other.offset;
+    }
+    bool operator <(const result& other) const {
+        return offset < other.offset;
+    }
+    bool operator ==(const result& other) const {
+        return offset == other.offset;
+    }
+    bool operator >=(const result& other) const {
+        return offset >= other.offset;
+    }
+    bool operator <=(const result& other) const {
+        return offset <= other.offset;
+    }
+} result;
+
 using namespace std;
 
-class StringSearch : public TaskParallelizer<segment*, int, segment*, Terminator>{
+class StringSearch : public TaskParallelizer<segment*, int, int, Terminator>{
     public:
         StringSearch(const struct job_details t_jobs[], const unsigned t_job_num, 
             TaskContainer* t_super_job_class = nullptr, const int t_id = -1);

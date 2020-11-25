@@ -7,137 +7,138 @@
 */
 #include "file_read.h"
 
+const unsigned pref_len = 3;
+const unsigned sufx_len = 3;
+
 FileRead::FileRead(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class, const int t_id) 
             : TaskParallelizer(t_jobs, t_job_num, t_super_job_class, t_id),
-            m_seg_len(m_job_details->job_segment_size),
-            m_overlap(((string*) t_jobs[1].job_detail)->length() - 1)
+            m_sbuf_len(m_job_details->job_segment_size),
+            m_overlap(((string*) t_jobs[1].job_detail)->length() - 1),
+            m_rbuf_len(*((int*) m_job_details->job_detail))
             {
-                unsigned desired_buf = *((int*) m_job_details->job_detail);
-
                 // check values:
-                if(desired_buf < progconst::RBUF_MIN
-                    || desired_buf > progconst::RBUF_MAX) {
+                if(m_rbuf_len < progconst::RBUF_MIN
+                    || m_rbuf_len > progconst::RBUF_MAX) {
                         throw invalid_argument(progconst::wrong_value_ibuf);
                     }
-                if(m_seg_len < progconst::SBUF_MIN
-                    || m_seg_len > progconst::SBUF_MAX) {
+                if(m_sbuf_len < progconst::SBUF_MIN
+                    || m_sbuf_len > progconst::SBUF_MAX) {
                         throw invalid_argument(progconst::wrong_value_buf);
                     }
 
                 // check segment-buffer ratio:
-                if (m_seg_len > desired_buf) {
+                if (m_sbuf_len > m_rbuf_len) {
                     throw invalid_argument(progconst::segment_vs_buffer);
                 }
 
-                // alighn buffer-segment lengths
-                // buffer should be n*segment size + segment size-1:
-                // [segment size][segment siez] ... [(match string length) - 1] 
-                // | -->               BUFFER SIZE                            |
-                // Buffer size can be max: *((int*) m_job_details->job_detail)
-                unsigned num_of_seg = desired_buf / m_seg_len;
-                unsigned reminder =  desired_buf % m_seg_len;
-
                 // check usefullness of multithread:
-                if (m_parallel && num_of_seg < m_job_details->thread_number) {
+                if (m_parallel && 
+                    (m_rbuf_len / m_sbuf_len) < m_job_details->thread_number) {
                     cerr << progconst::warn_thread_vs_segment << endl;
                 }
 
-                // set correct m_buffer_len:
-                /*if (reminder == m_overlap) {
-                    m_buffer_len = desired_buf;
-                } else {
-                    num_of_seg--;
-                    m_buffer_len = num_of_seg * m_seg_len + m_seg_len - 1;
-                }*/
-
-                if (reminder != (m_seg_len - 1)) {
-                    num_of_seg--;
-                    m_buffer_len = num_of_seg * m_seg_len + m_seg_len - 1;
-                } else {
-                    m_buffer_len = desired_buf;
-                }
-                
-                m_buffer = new char[m_buffer_len];
+                m_rbuf = new char[m_rbuf_len];
             };
             
 FileRead::~FileRead()
 {
-    delete[] m_buffer;
-    for (auto &elem : garbage) {
-        delete elem;
-    }
+    delete[] m_rbuf;
+    clear_collector();
 }
 
 void FileRead::start(fs::path &t_path)
 {
+    // save filename for process_sub_results() function:
+    m_file_path = t_path;
+    
     // get file size: 
     uintmax_t file_size;
     try{
         file_size = fs::file_size(t_path);
     } catch (exception &e) {
         cerr << progconst::file_size_error << e.what() << endl;
-        // !! TODO staci len return? Netreba este nieco?
         return;
     }
 
     // open file:
-    uintmax_t general_file_offset = 0;
     FILE* file = fopen(t_path.string().c_str(), "r");
     if (file == nullptr) {
         cerr << progconst::file_open_error << t_path.string() << endl;
-        // !! TODO staci len return? Netreba este nieco?
         return;
     }
 
     // read in cycel:
     uintmax_t size_left = file_size;
+    bool read_error_again = false;
     while(size_left > 0) {
-        // handle exceptions!
-
         // read to buffer
-        unsigned to_read = m_buffer_len < size_left ? m_buffer_len : size_left;
-        const size_t read = fread(m_buffer, sizeof m_buffer[0], to_read, file);
+        unsigned to_read = m_rbuf_len < size_left ? m_rbuf_len : size_left;
+        const size_t read = fread(m_rbuf, sizeof m_rbuf[0], to_read, file);
         // check length:
         if (to_read != read) {
-            // CO TERAZ? TODO
-            cout << "zle je\n";
+            if (read_error_again) {
+                cerr << progconst::read_less_again << t_path.string() << endl;
+                break;
+            }
+            cerr << progconst::read_less << t_path.string() << endl;
+            // try to process what was read:
+            //to_read = read;
+            read_error_again = true;
         }
-        // create segment, add to garbage collector, call sub job:
+        // create segment, add to garb_collect collector, call sub job:
         unsigned index = 0;
         while (index < read){
             unsigned this_segment_length 
-                = m_seg_len < (read - index) ? m_seg_len : (read - index);
+                = m_sbuf_len < (read - index) ? m_sbuf_len : (read - index);
             segment* seg = new segment
-                {general_file_offset, this_segment_length, &m_buffer[index]};
-            garbage.push_back(seg);
+                {file_size - size_left + index, 
+                    this_segment_length, &m_rbuf[index]};
+            garb_collect.push_back(seg);
             call_sub_job(seg);
             index += this_segment_length;
         }
         size_left -= read;
-        general_file_offset += read;
     }
     fclose(file);
+    // wait for sub-job threads:
+    if (m_parallel) {
+        m_sub_job_results.wake_on_empty_n_waiting(m_job_details->thread_number);
+    }
+    clear_collector();
 
-   /*
-    ...
-    dalsie veci:
-    volat garbage collector ked treba + kde sa bude cistit
-    spracovavat navratovu hodnotu ked treba (ten "RESULT")
-        vlastne nevieme ci ho bude pouzivat aj file_iterate
-    */
+    // process match(es) from this file:
+    process_sub_results();
 }
 
 void FileRead::start()
 {
-    TaskParallelizer<string, fs::path, string, FileRead>* super_class = 
-        (TaskParallelizer<string, fs::path, string, FileRead>*) get_super_class();
+    TaskParallelizer<string, fs::path, int, FileRead>* super_class = 
+        (TaskParallelizer<string, fs::path, int, FileRead>*) get_super_class();
     fs::path path = super_class->next_job_argument();
     start(path);
 }
 
+inline void FileRead::clear_collector(){
+    for (auto &elem : garb_collect) {
+            delete elem;
+    }
+    garb_collect.clear();
+}
+
 void FileRead::process_sub_results()
 {
-    return;
+    m_sub_job_results.sort();
+    // file name:
+    string filename = m_file_path.filename().string();
+    // full path: (TODO, add cmd switch)
+    //string filename = m_file_path;
+    while (!m_sub_job_results.empty()) {
+        const result* match = m_sub_job_results.pop_blocking();
+        // <file>(<position>):<prefix>...<sufix> 
+        cout << "<" << filename << ">(<" << match->offset << ">):";
+        cout << "<" << match->prefix << ">...<" << match->sufix << ">\n";
+        delete match;
+    }
 }

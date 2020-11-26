@@ -1,13 +1,8 @@
 /*
-
-                TODO
-                
-    
-
+    see task_parallelizer.h
 */
 
 #include "task_parallelizer.h"
-#include "tp_const.h"
 
 // Regular constructor:
 // Arguments:
@@ -15,6 +10,7 @@
 //      t_jobs[1] is for sub_job_class and so on...)
 //  - t_job_num: length of t_jobs
 //  - t_super_job_class: pointer to super class (if exists)
+//  - t_id: optional, just id of class, usefull for debugging
 // Class TaskParallelizer is abstract, it has pure virtual methods. 
 // Exceptions:
 //  throws invalid_argument with string message with details
@@ -49,7 +45,11 @@ TaskParallelizer<IN, OUT, BCK, SBJB>::TaskParallelizer(const job_details t_jobs[
         // or set up onlu one sub-job class:
         if (m_parallel) {
             for (unsigned i = 0; i < thread_num; i++) {
-                SBJB* sub_job_class = new SBJB(t_jobs + 1, t_job_num - 1, this, i);
+                const int class_id = 
+                    t_id == tpconst::CLASS_ID_DEF ? 
+                    i : (i + tpconst::CLASS_ID_LIMIT * t_id);
+                SBJB* sub_job_class = new SBJB(
+                    t_jobs + 1, t_job_num - 1, this, class_id);
                 thread* job_thread = new thread(&TaskContainer::start_parallel_cycle, 
                     sub_job_class);
                 // add to vector:
@@ -151,13 +151,20 @@ inline void TaskParallelizer<IN, OUT, BCK, SBJB>::call_sub_job(OUT t_item)
     }
 }
 
-// exception: thwos logic_error if stack is already stopped
+// function fo sub-job threads. Calling this function will push
+// return value (BCK result) created by sub-job thread to super-job
+// class/thread. 
+// exception: thwos logic_error if stack is already stopped (that means,
+// that no more return values can be pushed)
 template <typename IN, typename OUT, typename BCK, class SBJB>
 inline void TaskParallelizer<IN, OUT, BCK, SBJB>::put_sub_result(BCK &t_result)
 {
     m_sub_job_results.push(t_result);
 }
 
+// Blocks thread which calls this function untill 
+// all its sub-job threads are sleeping because of
+// empty vector.
 template <typename IN, typename OUT, typename BCK, class SBJB>
 void TaskParallelizer<IN, OUT, BCK, SBJB>::wait_to_sub_finish()
 noexcept {

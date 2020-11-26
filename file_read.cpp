@@ -1,21 +1,16 @@
 /*
-
-                TODO
-                
-    
-
+    see file_read.h
 */
 #include "file_read.h"
 
-const unsigned pref_len = 3;
-const unsigned sufx_len = 3;
-
+// constructor:
 FileRead::FileRead(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class, const int t_id) 
             : TaskParallelizer(t_jobs, t_job_num, t_super_job_class, t_id),
             m_sbuf_len(m_job_details->job_segment_size),
-            m_overlap(((string*) t_jobs[1].job_detail)->length() - 1),
+            m_overlap(((string*) t_jobs[1].job_detail)->length()
+                 - 1 + progconst::PREFIX_LEN + progconst::SUFIX_LEN),
             m_rbuf_len(*((int*) m_job_details->job_detail))
             {
                 // check values:
@@ -29,7 +24,7 @@ FileRead::FileRead(const struct job_details t_jobs[],
                     }
 
                 // check segment-buffer ratio:
-                if (m_sbuf_len > m_rbuf_len) {
+                if (m_sbuf_len + m_overlap > m_rbuf_len) {
                     throw invalid_argument(progconst::segment_vs_buffer);
                 }
 
@@ -39,15 +34,18 @@ FileRead::FileRead(const struct job_details t_jobs[],
                     cerr << progconst::warn_thread_vs_segment << endl;
                 }
 
+                // crate buffer for reading:
                 m_rbuf = new char[m_rbuf_len];
             };
-            
+
+// destructor:          
 FileRead::~FileRead()
 {
     delete[] m_rbuf;
     clear_collector();
 }
 
+// main function:
 void FileRead::start(fs::path &t_path)
 {
     // save filename for process_sub_results() function:
@@ -78,23 +76,29 @@ void FileRead::start(fs::path &t_path)
         const size_t read = fread(m_rbuf, sizeof m_rbuf[0], to_read, file);
         // check length:
         if (to_read != read) {
+            // we will accept one error...
             if (read_error_again) {
                 cerr << progconst::read_less_again << t_path.string() << endl;
                 break;
             }
             cerr << progconst::read_less << t_path.string() << endl;
-            // try to process what was read:
-            //to_read = read;
             read_error_again = true;
         }
         // create segment, add to garb_collect collector, call sub job:
         unsigned index = 0;
         while (index < read){
-            unsigned this_segment_length 
-                = m_sbuf_len < (read - index) ? m_sbuf_len : (read - index);
+            unsigned this_segment_length = 
+                m_sbuf_len + m_overlap < (read - index) ? 
+                m_sbuf_len + m_overlap : (read - index);
+            unsigned this_segment_offset = 
+                file_size - size_left + index;
             segment* seg = new segment
-                {file_size - size_left + index, 
-                    this_segment_length, &m_rbuf[index]};
+            {
+                this_segment_offset, 
+                this_segment_offset + this_segment_length == file_size ? true : false,
+                this_segment_length, 
+                &m_rbuf[index]
+            };
             garb_collect.push_back(seg);
             call_sub_job(seg);
             index += this_segment_length;
@@ -104,7 +108,7 @@ void FileRead::start(fs::path &t_path)
     fclose(file);
     // wait for sub-job threads:
     if (m_parallel) {
-        m_sub_job_results.wake_on_empty_n_waiting(m_job_details->thread_number);
+        wait_to_sub_finish();
     }
     clear_collector();
 
@@ -120,6 +124,9 @@ void FileRead::start()
     start(path);
 }
 
+// delete all results created by 
+// sub-job classes and pushed to this class
+// by calling put_sub_result(BCK &t_result)
 inline void FileRead::clear_collector(){
     for (auto &elem : garb_collect) {
             delete elem;

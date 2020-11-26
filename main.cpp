@@ -1,7 +1,6 @@
 /*
-
-                TODO
-
+    Program for parallel string search in files, folders and
+    sub folders.  
 */
 
 #include <iostream>
@@ -119,8 +118,8 @@ int main(int argc, char **argv)
 
     // if read buffer size was not provided, use default
     // otherwise check if in range:
-    if (arg_rbuf == progconst::BUF_NDEF) {
-        if (arg_sbuf > progconst::RBUF_DEF) {
+    if (arg_rbuf == (int) progconst::BUF_NDEF) {
+        if (arg_sbuf > (int) progconst::RBUF_DEF) {
             arg_rbuf = arg_sbuf * progconst::RBUF_DEF_RATIO;
         } else {
             arg_rbuf = progconst::RBUF_DEF;
@@ -139,7 +138,7 @@ int main(int argc, char **argv)
 
     // check, if segment size and read buffer siez is 
     // bigger than string of string to be matched:
-    if (arg_sbuf < match_len) {
+    if (arg_sbuf < (int) match_len) {
         cout << progconst::match_vs_segment << endl;
         return EXIT_FAILURE;
     }
@@ -153,7 +152,7 @@ int main(int argc, char **argv)
     const struct job_details data[3] = {
         {nullptr, (unsigned) arg_t1, progconst::BUF_NDEF},
         {(int*) &arg_rbuf, (unsigned) arg_t2, (unsigned) arg_sbuf},
-        {&match, progconst::THR_MIN, progconst::BUF_NDEF}
+        {(string*) &match, progconst::THR_MIN, progconst::BUF_NDEF}
     };
 
     // run search:
@@ -164,10 +163,5 @@ int main(int argc, char **argv)
         std::cerr << progconst::file_error << e.what() << endl;
         return EXIT_FAILURE;
     }
-    // SKUSAME:
-    //Diks<string, string> disk(t_jobs, 3, nullptr);
-    //disk.start("/home/...");
-
-    //cout << data.path.string() << ", " << data.to_find << ", " << data.t1 << ", " << data.t2 << ", " << data.b2_buf << endl;
     return EXIT_SUCCESS;
 }

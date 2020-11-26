@@ -2,9 +2,10 @@
 #define DISK_ITERATE_H
 
 /*
-
-                    ?
-
+    Start method of this class iterates all files in 
+    folder, which was passed to this class.
+    Files are passed to FileRead class, which is responsible
+    for reading each file. 
 */
 
 #include <iostream>

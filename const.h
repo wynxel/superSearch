@@ -2,9 +2,8 @@
 #define CONST_H
 
 /*
-
-                TODO
-
+    constrants and string messages for
+    superSearch utility:
 */
 
 #include <string>
@@ -14,6 +13,8 @@ using namespace std;
 
 namespace progconst{
     // defaults:
+    // ((!) TaskParallelizer has its own 
+    // thread, buffer constants)
     const unsigned THR_MIN = 0;
     const unsigned THR_MAX = 10;
     const unsigned BUF_NDEF = 0;
@@ -25,6 +26,9 @@ namespace progconst{
     const unsigned RBUF_MAX = 500000000;
     const unsigned SBUF_DEF_RATIO = 2;
     const unsigned RBUF_DEF_RATIO = 10;
+    const unsigned PREFIX_LEN = 3;
+    const unsigned SUFIX_LEN = 3;
+
 
     // switches: 
     const string switch_t1 = "-t1";
@@ -73,9 +77,7 @@ namespace progconst{
     const string read_less = "Error: read function returned less characters as expected. On file: ";
     const string read_less_again = "Error: read function once again returned less characters as expected. "
         " Due to this error, skipping problem file: ";
-
-
-    // runtime exceptions:
+    const string search_exception = "Error: an exception occured during searching in string: ";
 }
 
 #endif

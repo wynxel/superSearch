@@ -2,9 +2,14 @@
 #define FILE_READ_H
 
 /*
-
-                    ?
-
+    Start function of this class takes file name and
+    reads this file. Characters from file are split to
+    "segments" (segment length can be configured) and each
+    segment is pushed to TaskParallelizer stack. Then, 
+    StringSearch threads are taking this segments from stack
+    and performing string search in segments.
+    FileRead function also handles programm output, so it
+    prints results in process_sub_results() function. 
 */
 
 #include <iostream>
@@ -23,7 +28,7 @@ class FileRead : public TaskParallelizer<fs::path, segment*, result*, StringSear
         FileRead(const struct job_details t_jobs[], const unsigned t_job_num, 
             TaskContainer* t_super_job_class = nullptr, const int t_id = -1);
         virtual void start(fs::path &t_path);
-        ~FileRead(); // DELETE OUT SEGMENTS!
+        ~FileRead();
 
     protected:
         virtual void start();

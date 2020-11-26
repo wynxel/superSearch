@@ -2,10 +2,32 @@
 #define TASKPARALELIZER_H
 
 /*
-
-                TODO
-            doplnit:
-            potrebne obj-oriented "povinne" funkcie
+    TaskParallelizer class is an abstract class,
+    which helps to parallelize task, which can be
+    written in the way of nested for cycles. For example:
+        for (drive : all_drives){
+            for (file : drive) {
+                for (data_chunk : file){
+                    do something with data_chunk...
+                }
+            }
+        }
+    If program can be written in this way, then one instance
+    of TaskParallelizer can represent one for loop. 
+    Body of this for loop can be "placed" into start() method
+    of TaskParallelizer derived class (TaskParallelizer is 
+    abstract class...). Then, when you will for example 
+    start instance of this derived class with setting number of
+    threads to 4, total work of this "for cycle" 
+    will be split between 4 threads. This is simplified explanation
+    of TaskParallelizer. If you want to use it, please read
+    comments of TaskParallelizer functions in this headder file (
+        especially functions: start(), call_sub_job(), 
+        process_sub_results()..)
+    Key functionality of TaskParallelizer is in underlaying stack
+    (parallel_vector), which synchronizes produce-consume requests
+    between those nested for cycles, which are being parallelized
+    by this awesome class. 
 */
 
 #include <iostream>
@@ -16,11 +38,11 @@
 #include <exception>
 #include <type_traits>
 #include "parallel_vector.h"
+#include "tp_const.h"
 
 using namespace std;
 
 // Exception used by next_job_argument function:
-// TODO pojde prec
 class NoMoreJob : public exception {
     public:
         NoMoreJob() : exception(){};
@@ -51,7 +73,8 @@ class TaskContainer{
 class Terminator : public TaskContainer {
     public: 
         Terminator(const job_details t_jobs[], const unsigned t_job_num, 
-            TaskContainer* t_super_job_class = nullptr, const int t_id = -1){};
+            TaskContainer* t_super_job_class = nullptr, 
+            const int t_id = tpconst::CLASS_ID_DEF){};
         void start() {};
         void start_parallel_cycle() {};
 };
@@ -102,7 +125,7 @@ class TaskParallelizer : public TaskContainer{
         TaskParallelizer(const job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class = nullptr,
-            const int t_id = -1);
+            const int t_id = tpconst::CLASS_ID_DEF);
         /* 
             Main function: void start(IN &t_single_job)
             This function should do it's job according to:
@@ -154,6 +177,8 @@ class TaskParallelizer : public TaskContainer{
             multithread mode, this function should first call 
             wait_to_sub_finish(), to be sure, that all threads pushed
             results of their job to m_sub_job_results.
+            Note2: if sub-job threads are pushing results created
+            by calling new, don't forget to free memory in this function!
         */
         virtual void process_sub_results() = 0;
 };

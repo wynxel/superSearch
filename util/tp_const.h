@@ -2,9 +2,7 @@
 #define  TP_CONST_H
 
 /*
-
-                TODO
-
+    TaskParallelizer constants and strings
 */
 
 #include <string>
@@ -16,8 +14,10 @@ namespace tpconst{
     const unsigned NO_THREAD = 0;
     const unsigned THREAD_MAX = 20;
     const unsigned NO_SEG = 0;
-    const unsigned SEG_MAX = 10000;
-    const unsigned SEG_MULT = 1000;
+    const unsigned SEG_MAX = 1500000;
+    const unsigned CLASS_ID_LIMIT = 100;
+    const int CLASS_ID_DEF = -1;
+
 
     // runtime exceptions:
     const string no_multithread = "This function can be called only in multithread mode.";

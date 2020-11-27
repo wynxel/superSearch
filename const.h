@@ -28,9 +28,12 @@ namespace progconst{
     const unsigned RBUF_DEF_RATIO = 10;
     const unsigned PREFIX_LEN = 3;
     const unsigned SUFIX_LEN = 3;
+    const bool VERB_DEF = false;
+
 
 
     // switches: 
+    const string switch_verb = "-v";
     const string switch_t1 = "-t1";
     const string switch_t2 = "-t2";
     const string switch_rbuf = "-ib";
@@ -45,9 +48,12 @@ namespace progconst{
         "\n\t-buf NUM\t if -t2 > 1, split file to segments of size NUM and search in segments in parallel"
         "\n\t\t\t min: %5%, max: %6% (default: %7%)"
         "\n\t-ib  NUM\t size of file reading buffer. Best option is to set it to L3 cache size."
-        "\n\t\t\t min: %8%, max: %9% (default: %10%)"} 
+        "\n\t\t\t min: %8%, max: %9% (default: %10%)"
+        "\n\t-v      \t verbose"} 
         % THR_MIN % THR_MAX % THR_MIN % THR_MAX % SBUF_MIN % SBUF_MAX 
         % SBUF_DEF % RBUF_MIN % RBUF_MAX % RBUF_DEF);
+    const string VERB_PATH = "Searching in path (file): ";
+    const string VERB_STRING = "Seraching for string: ";
 
     // argument errors:
     const string arg_few = "Error: not enough arguments.";

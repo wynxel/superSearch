@@ -53,6 +53,7 @@ int main(int argc, char **argv)
     int arg_t2 = (int) progconst::THR_MIN;
     int arg_rbuf = (int) progconst::BUF_NDEF;
     int arg_sbuf = (int) progconst::BUF_NDEF;
+    bool arg_verb = progconst::VERB_DEF;
     int arg_idx = 3;
     while (arg_idx + 1 < argc) {
         // check switch and value:
@@ -62,32 +63,37 @@ int main(int argc, char **argv)
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
                 return arg_error_exit();
             }
+            arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_t2){
             // switch "-t2"
             if (!stoi_exception(&arg_t2, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
                 return arg_error_exit();
             }
+            arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_sbuf){
             // switch "-buf"
             if (!stoi_exception(&arg_sbuf, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
                 return arg_error_exit();
             }
+            arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_rbuf){
             // switch "-ib"
             if (!stoi_exception(&arg_rbuf, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
                 return arg_error_exit();
             }
+            arg_idx += 2;
+        } else if (string(argv[arg_idx]) ==  progconst::switch_verb){
+            // switch "-v"
+            arg_verb = true;
+            arg_idx += 1;
         } else {
             // unknown switch
             cout << progconst::not_switch << argv[arg_idx] << endl;
             return arg_error_exit();
         }
-
-        // set to next switch parse:
-        arg_idx += 2;
     }
 
     // check values:
@@ -154,6 +160,11 @@ int main(int argc, char **argv)
         {(int*) &arg_rbuf, (unsigned) arg_t2, (unsigned) arg_sbuf},
         {(string*) &match, progconst::THR_MIN, progconst::BUF_NDEF}
     };
+
+    if (arg_verb) {
+        cout << progconst::VERB_PATH << "\"" << path << "\"" << endl;
+        cout << progconst::VERB_STRING << "\"" << match << "\"" << endl;
+    }
 
     // run search:
     try {

@@ -17,8 +17,7 @@ time ./single ~/Desktop/testData "Union County Medi" -v -rb 1500000
 time ./single ~/Desktop/testData "jul 270 s" -v
 time ./superSearch ~/Desktop/testData "jul 270 s" -v
 .
-Napriek snahe sa mi nepodarilo nájsť konfiguráciu počtu vlákien a
-veľkosti bufferov, v ktorej by bola multi-threadová verzia podstatne
-rýchlejšia. Výsledky boli z časového hľadiska viac-menej podobné. 
-Asi by bolo potrebné 
-
+Na testovacích súboroch, ktoré sú aj tu na githube, sa mi pri multi-threadovom
+nastavení nepodarilo dosiahnuť značne väčšiu rýchlosť. Ani zvýšením počtu
+vlákien čítajúcich z ssd disku, ani zvíšením počtu vlákien vyhľadávajúcich v 
+načítaných dátach. Program bežal viac-menej vždy podobne rýchlo. 

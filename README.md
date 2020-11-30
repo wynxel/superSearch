@@ -11,5 +11,5 @@ Compile single thread test version with:
     
 Required:
 =========
-.. boost library (used only in one string operation...)
-.. c++ 17 support
+- boost library (used only in one string operation...)
+- c++ 17 support

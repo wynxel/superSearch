@@ -1,0 +1,3 @@
+Oba programy (main aj single_thread) som testoval na 
+malom adresarovom strome (55 txt suborov, kazdy ~ 1.1-1.5MB,
+hlbka adresaroveho stromu 3). 

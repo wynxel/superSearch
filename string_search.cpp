@@ -4,6 +4,7 @@
 #include "string_search.h"
 
 // constructor:
+// for more details, see TaskParallelizer constructor/class description
 StringSearch::StringSearch(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class, const int t_id) 
@@ -82,11 +83,18 @@ void StringSearch::start(segment* &t_seg)
                 progconst::SUFIX_LEN < (end - position - needle_len) ? 
                 progconst::SUFIX_LEN : (end - position - needle_len);
             // create strings:
-            char* prefix = create_escaped_substring(position - pref_len, pref_len);
-            char* sufix = create_escaped_substring(position + needle_len, sufx_len);
+            char* prefix = create_escaped_substring
+                (position - pref_len, pref_len);
+            char* sufix = create_escaped_substring
+                (position + needle_len, sufx_len);
             // create and push result object:
-            result* res = new result{prefix, sufix, ((unsigned)(position - start)) + t_seg->offset};
-            ((TaskParallelizer<fs::path, segment*, result*, StringSearch>*)get_super_class())->put_sub_result(res);
+            result* res = new result
+            {
+                prefix, sufix, 
+                ((unsigned)(position - start)) + t_seg->offset
+            };
+            ((TaskParallelizer<fs::path, segment*, result*, StringSearch>*)
+                get_super_class())->put_sub_result(res);
         } else {
             break;
         }

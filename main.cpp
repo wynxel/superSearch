@@ -26,7 +26,7 @@ int stoi_exception(int *t_out, const char* t_in)
 }
 
 // print manual and exit program:
-inline int arg_error_exit()
+inline int print_man_and_return_err()
 {
     cout << progconst::manual << endl;
     return EXIT_FAILURE;
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     if (argc < 3) {
         // not enough arguments:
         cout << progconst::arg_few << endl;
-        return arg_error_exit();
+        return print_man_and_return_err();
     }
     // path and string to be found:
     string path = string(argv[1]);
@@ -61,38 +61,41 @@ int main(int argc, char **argv)
             // switch "-t1"
             if (!stoi_exception(&arg_t1, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
-                return arg_error_exit();
+                return print_man_and_return_err();
             }
             arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_t2){
             // switch "-t2"
             if (!stoi_exception(&arg_t2, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
-                return arg_error_exit();
+                return print_man_and_return_err();
             }
             arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_sbuf){
             // switch "-buf"
             if (!stoi_exception(&arg_sbuf, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
-                return arg_error_exit();
+                return print_man_and_return_err();
             }
             arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_rbuf){
             // switch "-ib"
             if (!stoi_exception(&arg_rbuf, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
-                return arg_error_exit();
+                return print_man_and_return_err();
             }
             arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_verb){
             // switch "-v"
             arg_verb = true;
             arg_idx += 1;
+        } else if (string(argv[arg_idx]) ==  progconst::switch_h1){
+            // switch "-h"
+            return print_man_and_return_err();
         } else {
             // unknown switch
             cout << progconst::not_switch << argv[arg_idx] << endl;
-            return arg_error_exit();
+            return print_man_and_return_err();
         }
     }
 
@@ -100,12 +103,12 @@ int main(int argc, char **argv)
     if (arg_t1 < (int) progconst::THR_MIN 
         || arg_t1 > (int) progconst::THR_MAX) {
         cout << progconst::wrong_value_t1 << endl;
-        return arg_error_exit();
+        return print_man_and_return_err();
     }
    if (arg_t2 < (int) progconst::THR_MIN 
         || arg_t2 > (int) progconst::THR_MAX) {
         cout << progconst::wrong_value_t2 << endl;
-        return arg_error_exit();
+        return print_man_and_return_err();
     }
 
     // if segment was not provided use default
@@ -119,7 +122,7 @@ int main(int argc, char **argv)
     } else if (arg_sbuf < (int) progconst::SBUF_MIN
         || arg_sbuf > (int) progconst::SBUF_MAX) {
         cout << progconst::wrong_value_buf << endl;
-        return arg_error_exit();
+        return print_man_and_return_err();
     }
 
     // if read buffer size was not provided, use default
@@ -133,7 +136,7 @@ int main(int argc, char **argv)
     } else if (arg_rbuf < (int) progconst::RBUF_MIN 
         || arg_sbuf > (int) progconst::RBUF_MAX) {
         cout << progconst::wrong_value_ibuf << endl;
-        return arg_error_exit();
+        return print_man_and_return_err();
     }
 
     // check file path:
@@ -170,8 +173,11 @@ int main(int argc, char **argv)
     try {
         FileIterate search(data, 3);
         search.start(path);   
-    } catch(const fs::filesystem_error& e) {
+    } catch (fs::filesystem_error& e) {
         std::cerr << progconst::file_error << e.what() << endl;
+        return EXIT_FAILURE;
+    } catch (exception& e) {
+        std::cerr << progconst::main_exception << e.what() << endl;
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

@@ -4,6 +4,9 @@
 #include "file_read.h"
 
 // constructor:
+// save and check values
+// allocate buffer
+// for more details, see TaskParallelizer constructor/class description
 FileRead::FileRead(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class, const int t_id) 
@@ -13,7 +16,7 @@ FileRead::FileRead(const struct job_details t_jobs[],
                  - 1 + progconst::PREFIX_LEN + progconst::SUFIX_LEN),
             m_rbuf_len(*((int*) m_job_details->job_detail))
             {
-                // check values:
+                // check m_rbuf_len, m_sbuf_len range:
                 if(m_rbuf_len < progconst::RBUF_MIN
                     || m_rbuf_len > progconst::RBUF_MAX) {
                         throw invalid_argument(progconst::wrong_value_ibuf);
@@ -106,12 +109,13 @@ void FileRead::start(fs::path &t_path)
         size_left -= read;
     }
     fclose(file);
-    // wait for sub-job threads:
+    // wait for sub-job threads to finnish with
+    // job (segments) passed through call_sub_job():
     if (m_parallel) {
         wait_to_sub_finish();
     }
+    // free memory:
     clear_collector();
-
     // process match(es) from this file:
     process_sub_results();
 }

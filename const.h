@@ -38,6 +38,7 @@ namespace progconst{
     const string switch_t2 = "-t2";
     const string switch_rbuf = "-ib";
     const string switch_sbuf = "-buf";
+    const string switch_h1 = "-h";
 
     // manual: 
     const string manual = boost::str(boost::format{"Ussage: search PATH PATTERN [OPTIONS]\nOptions:"
@@ -84,6 +85,7 @@ namespace progconst{
     const string read_less_again = "Error: read function once again returned less characters as expected. "
         " Due to this error, skipping problem file: ";
     const string search_exception = "Error: an exception occured during searching in string: ";
+    const string main_exception = "Unknown exception occured during searching in files: ";
 }
 
 #endif

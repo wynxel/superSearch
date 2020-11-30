@@ -4,6 +4,7 @@
 #include "file_iterate.h"
 
 // cosntructor
+// for more details, see TaskParallelizer constructor/class description
 FileIterate::FileIterate(const struct job_details t_jobs[], 
             const unsigned t_job_num, 
             TaskContainer* t_super_job_class, const int t_id) 

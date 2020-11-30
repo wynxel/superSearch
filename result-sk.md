@@ -1,4 +1,3 @@
-<h2>COPY</h2>
 <h2>Testovanie:</h2>
 Program superSearch (v main.cpp) som testoval na 
 malom adresárovom strome testData (je súčasťou repozitáru, 
@@ -53,7 +52,7 @@ time ./superSearch ~/testData/ "and is" -v -t1 4 -t2 4 -rb 1048576 -sb 262144
 user	0m0.860s  
 sys	0m0.060s  
 
-<h3>Testy na testData/ adresari po pridani jedneho 400+MB suboru a jedneho 100+MB suboru:</h3>
+<h3>Testy na testData/ adresari po pridani jedneho 400+MB suboru a jedneho 100+MB suboru:</h3>  
 *(predvolene buffre su read buffer: 6MB, segment buffer: 65536B)*
 
 time ./superSearch ~/testData/ "and is" -v  

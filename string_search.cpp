@@ -49,8 +49,8 @@ void StringSearch::start(segment* &t_seg)
     string* needle = (string*) m_job_details->job_detail;
     unsigned needle_len = needle->length();
 
-    // check, if we are at start of file, in the file, or in the end:
-    // (there are little differences)
+    // if we are at beginning or end of file,
+    // allow prefix/sufix shorter than desired:
     const unsigned start_padd = 
         t_seg->offset == 0 ? 0 : progconst::PREFIX_LEN;
     const unsigned end_padd = 
@@ -67,6 +67,7 @@ void StringSearch::start(segment* &t_seg)
     char* search_to = start + t_seg->length - end_padd;
     char* position;
     while (search_from < search_to) {
+        // try to find needle occurence:
         try {
             position = search(search_from, search_to,
                 boyer_moore_searcher(needle->begin(), needle->end()));

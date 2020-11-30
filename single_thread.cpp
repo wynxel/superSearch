@@ -20,6 +20,8 @@ string needle;
 string path;
 unsigned needle_len;
 const unsigned pref_suf_max_char = 7;
+bool arg_verb = progconst::VERB_DEF;
+
 
 // wrapper function for std::stoi()
 // handles stoi() exception, returns 1 if no exception, 0 otherwise
@@ -39,10 +41,10 @@ void free_mem(){
 }
 
 // print manual and exit program:
-inline int print_man_and_return_err()
+inline int print_man_and_return_end()
 {
     cout << progconst::manual_single << endl;
-    return EXIT_FAILURE;
+    return false;
 }
 
 // help function for escaping \t and \n characters
@@ -186,32 +188,18 @@ void search_in_file(const fs::path t_path)
     fclose(file);
 }
 
-// program main:
-// parse and validate program arguments
-// run file search
-int main(int argc, char **argv)
+// function for parsing cmd arguments
+// switch values are stored to global variables
+inline bool parse_cmd_arg(const int argc, const char **argv)
 {
-    // chceck and process cmd arguments:
-    if (argc < 3) {
-        // not enough arguments:
-        cout << progconst::arg_few << endl;
-        return print_man_and_return_err();
-    }
-    // path and string to be found:
-    path = string(argv[1]);
-    needle = argv[2];
-    needle_len = needle.length();
-    
-    // parse switches:
-    bool arg_verb = progconst::VERB_DEF;
-    int arg_idx = 3;
+   int arg_idx = 3;
     while (arg_idx + 1 < argc) {
         // check switch and value:
         if (string(argv[arg_idx]) ==  progconst::switch_rbuf){
             // switch "-rb"
             if (!stoi_exception(&rbuf_len, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
-                return print_man_and_return_err();
+                return print_man_and_return_end();
             }
             arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_verb){
@@ -220,14 +208,21 @@ int main(int argc, char **argv)
             arg_idx += 1;
         } else if (string(argv[arg_idx]) ==  progconst::switch_h1){
             // switch "-h"
-            return print_man_and_return_err();
+            return print_man_and_return_end();
         } else {
             // unknown switch
             cout << progconst::not_switch << argv[arg_idx] << endl;
-            return print_man_and_return_err();
+            return print_man_and_return_end();
         }
     }
+    return true;
+}
 
+// check read buffer length
+// if not provided, use defaults
+// then check read buffer vs needle length:
+inline bool check_read_buffer_len()
+{
     // if read buffer size was not provided, use default
     // otherwise check if in range:
     if (rbuf_len == (int) progconst::BUF_NDEF) {
@@ -235,13 +230,7 @@ int main(int argc, char **argv)
     } else if (rbuf_len < (int) progconst::RBUF_MIN 
         || rbuf_len > (int) progconst::RBUF_MAX) {
         cout << progconst::wrong_value_ibuf << endl;
-        return print_man_and_return_err();
-    }
-
-    // check file path:
-    if (!fs::exists(string(argv[1]))) {
-        cout << progconst::wrong_path << argv[1] << endl;
-        return EXIT_FAILURE;
+        return print_man_and_return_end();
     }
 
     // check, if read buffer siez is 
@@ -251,14 +240,48 @@ int main(int argc, char **argv)
         cout << progconst::rbuf_gt_needle << endl;
         return EXIT_FAILURE;
     }
+    return true;
+}
+
+// program main:
+// parse and validate program arguments
+// run file search
+int main(const int argc, const char **argv)
+{
+    // chceck and process cmd arguments:
+    if (argc < 3) {
+        // not enough arguments:
+        cout << progconst::arg_few << endl;
+        return print_man_and_return_end();
+    }
+    // path and string to be found:
+    path = string(argv[1]);
+    needle = argv[2];
+    needle_len = needle.length();
+    
+    // parse switches:
+    if(!parse_cmd_arg(argc, argv)) {
+        return EXIT_FAILURE;
+    }
+
+    // check reading and segment buffer sizes:
+    if(!check_read_buffer_len()) {
+        return EXIT_FAILURE;
+    }
+
+    // check file path:
+    if (!fs::exists(string(argv[1]))) {
+        cout << progconst::wrong_path << argv[1] << endl;
+        return EXIT_FAILURE;
+    }
 
     // create buffer for reading:
     rbuf = new char[rbuf_len];
 
     // be verbose:
     if (arg_verb) {
-        cout << progconst::VERB_PATH << "\"" << path << "\"" << endl;
-        cout << progconst::VERB_STRING << "\"" << needle << "\"" << endl;
+        cout << progconst::verb_path << "\"" << path << "\"" << endl;
+        cout << progconst::verb_needle << "\"" << needle << "\"" << endl;
     }
 
     // run search:

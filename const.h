@@ -59,8 +59,13 @@ namespace progconst{
         "\n\t\t\t min: %1%, max: %2% (default: %3%)"
         "\n\t-v      \t verbose"}  
         % RBUF_MIN % RBUF_MAX % RBUF_DEF);
-    const string VERB_PATH = "Searching in path (file): ";
-    const string VERB_STRING = "Seraching for string: ";
+    const string verb_path = "Searching in path (file): ";
+    const string verb_needle = "Seraching for string: ";
+    const string verb_t1 = "Using -t1 threads: ";
+    const string verb_t2 = "Using -t2 threads: ";
+    const string verb_rbuf = "Using read buffer of size: ";
+    const string verb_sbuf = "Using segment buffer of size: ";
+
 
     // argument errors:
     const string arg_few = "Error: not enough arguments.";
@@ -79,12 +84,14 @@ namespace progconst{
         "found in this segment.";
     const string read_buf_vs_segment = "Error: read buffer can't be smaller than segment size.";
     const string rbuf_gt_needle = "Error: reading buffer is shorter than string to search.";
+    const string expect_num = "Expected number after switch: ";
 
     // program errors:
     const string file_error = "Unexpected error: ";
     const string file_size_error = "Unable to determine file size: ";
     const string file_open_error = "Can't open file: ";
-    const string segment_vs_buffer = "Segment size + length of string to be searched can't be bigger (equal) to read buffer size.";
+    const string segment_vs_buffer = "Reading buffer size must be at bigger than segment size "
+        " + length of the string to be matched + length of prefix and sufix to be printed.";
     const string warn_thread_vs_segment = "Read buffer size offers not enought segments for threads. "
         "Try to change ratio of reading buffer size, segment size and number of threads. Program will "
         "not stop, but it may be ineffective.";
@@ -92,7 +99,7 @@ namespace progconst{
     const string read_less_again = "Error: read function once again returned less characters as expected. "
         " Due to this error, skipping problem file: ";
     const string search_exception = "Error: an exception occured during searching in string: ";
-    const string main_exception = "Unknown exception occured during searching in files: ";
+    const string main_exception = "Internal exception: ";
     const string impossible = "Fatal error. Situation, which is not posibble, just happend.";
 }
 

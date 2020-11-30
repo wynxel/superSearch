@@ -188,18 +188,41 @@ void search_in_file(const fs::path t_path)
     fclose(file);
 }
 
+// function used in argument parse cycle
+// function is used for checking
+// and storing int value
+// t_arg - variable to which will be int value stored
+// t_switch - swich associated with this int value
+//  (this switch string is used for error print)
+// t_argv, t_argc - c++ main() parameters
+// t_index - index, on which desired int value should be placed
+bool save_int_swich_value(int &t_arg, const string t_switch, 
+    const char** t_argv, const int t_argc, const int t_index)
+{
+    // check, if we are in argc range:
+    if (t_index >= t_argc) {
+        cerr << progconst::expect_num << t_switch << endl;
+        return print_man_and_return_end();
+    }
+    if (!stoi_exception(&t_arg, t_argv[t_index])) {
+        cout << progconst::not_number << t_argv[t_index] << endl;
+        return print_man_and_return_end();
+    }
+    return true;
+}
+
 // function for parsing cmd arguments
 // switch values are stored to global variables
 inline bool parse_cmd_arg(const int argc, const char **argv)
 {
    int arg_idx = 3;
-    while (arg_idx + 1 < argc) {
+    while (arg_idx < argc) {
         // check switch and value:
         if (string(argv[arg_idx]) ==  progconst::switch_rbuf){
             // switch "-rb"
-            if (!stoi_exception(&rbuf_len, argv[arg_idx + 1])) {
-                cout << progconst::not_number << argv[arg_idx + 1] << endl;
-                return print_man_and_return_end();
+            if (!save_int_swich_value
+                (rbuf_len, progconst::switch_rbuf, argv, argc, arg_idx + 1)) {
+                return false;
             }
             arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_verb){
@@ -243,6 +266,14 @@ inline bool check_read_buffer_len()
     return true;
 }
 
+void print_details()
+{
+    cout << progconst::verb_path << "\"" << path << "\"" << endl;
+    cout << progconst::verb_needle << "\"" << needle << "\"" << endl;
+    cout << progconst::verb_rbuf << rbuf_len << endl;
+    cout << endl;
+}
+
 // program main:
 // parse and validate program arguments
 // run file search
@@ -278,10 +309,9 @@ int main(const int argc, const char **argv)
     // create buffer for reading:
     rbuf = new char[rbuf_len];
 
-    // be verbose:
+    // be verbose?
     if (arg_verb) {
-        cout << progconst::verb_path << "\"" << path << "\"" << endl;
-        cout << progconst::verb_needle << "\"" << needle << "\"" << endl;
+        print_details();
     }
 
     // run search:

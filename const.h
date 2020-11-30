@@ -20,7 +20,7 @@ namespace progconst{
     const unsigned BUF_NDEF = 0;
     const unsigned SBUF_MIN = 128;
     const unsigned SBUF_MAX = 1500000;
-    const unsigned SBUF_DEF = 8192;
+    const unsigned SBUF_DEF = 65536;
     const unsigned RBUF_MIN = 512;
     const unsigned RBUF_DEF = 6000000;
     const unsigned RBUF_MAX = 500000000;
@@ -84,7 +84,7 @@ namespace progconst{
     const string file_error = "Unexpected error: ";
     const string file_size_error = "Unable to determine file size: ";
     const string file_open_error = "Can't open file: ";
-    const string segment_vs_buffer = "Segment size is bigger than read buffer size.";
+    const string segment_vs_buffer = "Segment size + length of string to be searched can't be bigger (equal) to read buffer size.";
     const string warn_thread_vs_segment = "Read buffer size offers not enought segments for threads. "
         "Try to change ratio of reading buffer size, segment size and number of threads. Program will "
         "not stop, but it may be ineffective.";
@@ -93,6 +93,7 @@ namespace progconst{
         " Due to this error, skipping problem file: ";
     const string search_exception = "Error: an exception occured during searching in string: ";
     const string main_exception = "Unknown exception occured during searching in files: ";
+    const string impossible = "Fatal error. Situation, which is not posibble, just happend.";
 }
 
 #endif

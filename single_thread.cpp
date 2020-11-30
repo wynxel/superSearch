@@ -19,6 +19,7 @@ char* rbuf;
 string needle;
 string path;
 unsigned needle_len;
+const unsigned pref_suf_max_char = 7;
 
 // wrapper function for std::stoi()
 // handles stoi() exception, returns 1 if no exception, 0 otherwise
@@ -46,8 +47,8 @@ inline int print_man_and_return_err()
 
 // help function for escaping \t and \n characters
 // and for copying prefix-sufix
-char* create_escaped_substring
-    (const char* from, const unsigned length)
+bool create_escaped_substring
+    (char* buf, unsigned buf_len, const char* from, const unsigned length)
     {
         unsigned counter = 0;
         for (unsigned i = 0; i < length; i++) {
@@ -57,21 +58,23 @@ char* create_escaped_substring
                 counter++;
             }
         }
-        char* res_str = new char[counter + 1];
+        if (buf_len < counter) {
+            return false;
+        }
         unsigned res_i = 0;
         for (unsigned i = 0; i < length; i++, res_i++) {
             if (from[i] == 9) {
-                res_str[res_i] = '\\';
-                res_str[++res_i] = 't';
+                buf[res_i] = '\\';
+                buf[++res_i] = 't';
             } else if (from[i] == 10) {
-                res_str[res_i] = '\\';
-                res_str[++res_i] = 'n';
+                buf[res_i] = '\\';
+                buf[++res_i] = 'n';
             } else {
-                res_str[res_i] = from[i];
+                buf[res_i] = from[i];
             }
         }
-        res_str[counter] = 0;
-        return res_str;
+        buf[counter] = 0;
+        return true;
     }
 
 void print_result(string filename, const char* prefix, 
@@ -117,10 +120,12 @@ void search(const unsigned offset, const bool last, string filename)
                 progconst::SUFIX_LEN < (end - position - needle_len) ? 
                 progconst::SUFIX_LEN : (end - position - needle_len);
             // create strings:
-            char* prefix = create_escaped_substring
-                (position - pref_len, pref_len);
-            char* sufix = create_escaped_substring
-                (position + needle_len, sufx_len);
+            char prefix[pref_suf_max_char];
+            create_escaped_substring
+                (prefix, pref_suf_max_char, position - pref_len, pref_len);
+            char sufix[pref_suf_max_char];
+            create_escaped_substring
+                (sufix, pref_suf_max_char, position + needle_len, sufx_len);
             // print:
             print_result(filename, prefix, sufix, 
                 ((unsigned)(position - start)) + offset);

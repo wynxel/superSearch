@@ -8,18 +8,98 @@ väčších súborom (400+MB a 100+MB).
 Program som spúšťal na native Ubuntu 16.04 s i7 4700MQ a ssd diskom.
 .
 <h2>Zopár výsledkov:</h2>
+<h3>Testy na testData/ adresari:</h3>
+(predvolene buffre su read buffer: 6MB, segment buffer: 65536B)
 
-Príklady: 
-time ./superSearch ~/Desktop/testData "Union County Medi" -v -rb 1500000
-time ./single ~/Desktop/testData "Union County Medi" -v -rb 1500000
+time ./superSearch ~/testData/ "and is" -v
+real	0m0.635s
+user	0m0.604s
+sys	0m0.028s
 
-time ./single ~/Desktop/testData "jul 270 s" -v
-time ./superSearch ~/Desktop/testData "jul 270 s" -v
-.
-Na testovacích súboroch, ktoré sú aj tu na githube, sa mi pri multi-threadovom
-nastavení nepodarilo dosiahnuť značne väčšiu rýchlosť. Ani zvýšením počtu
-vlákien čítajúcich z ssd disku, ani zvíšením počtu vlákien vyhľadávajúcich v 
-načítaných dátach. Program bežal viac-menej vždy podobne rýchlo. 
+time ./single ~/testData/ "and is" -v
+real	0m2.568s
+user	0m2.496s
+sys	0m0.060s
+
+time ./superSearch ~/testData/ "and is" -v -t1 2
+real	0m0.353s
+user	0m0.660s
+sys	0m0.032s
+
+time ./superSearch ~/testData/ "and is" -v -t1 3
+real	0m0.263s
+user	0m0.696s
+sys	0m0.060s
+
+time ./superSearch ~/testData/ "and is" -v -t1 2 -t2 2
+real	0m0.226s
+user	0m0.740s
+sys	0m0.064
+
+time ./superSearch ~/testData/ "and is" -v -t1 2 -t2 4
+real	0m0.158s
+user	0m0.852s
+sys	0m0.036s
+
+<h3>Skúška zmena buffru:</h3>
+
+time ./superSearch ~/testData/ "and is" -v -t1 3 -t2 3 -rb 2097152
+real	0m0.158s
+user	0m0.924s
+sys	0m0.068s
+
+time ./superSearch ~/testData/ "and is" -v -t1 4 -t2 4 -rb 1048576 -sb 262144
+real	0m0.158s
+user	0m0.860s
+sys	0m0.060s
+
+<h3>Testy na testData/ adresari po pridani jedneho 400+MB suboru a jedneho 100+MB suboru:</h3>
+(predvolene buffre su read buffer: 6MB, segment buffer: 65536B)
+
+time ./superSearch ~/testData/ "and is" -v
+real	0m4.724s
+user	0m4.500s
+sys	0m0.196s
+
+time ./superSearch ~/testData/ "and is" -v -t1 2
+real	0m3.589s
+user	0m4.708s
+sys	0m0.152s
+
+time ./superSearch ~/testData/ "and is" -v -t1 3
+real	0m3.573s
+user	0m4.880s
+sys	0m0.220s
+
+time ./superSearch ~/testData/ "and is" -v -t1 2 -t2 2
+real	0m2.131s
+user	0m5.320s
+sys	0m0.256s
+
+time ./superSearch ~/testData/ "and is" -v -t1 2 -t2 4
+real	0m1.364s
+user	0m6.452s
+sys	0m0.208s
+
+time ./superSearch ~/Desktop/searchNew/superSearch/testData/ "and is" -v -t1 3 -t2 4 -rb 2097152
+real	0m1.351s
+user	0m6.376s
+sys	0m0.232s
+
+time ./superSearch ~/Desktop/searchNew/superSearch/testData/ "and is" -v -t1 3 -t2 4 -rb 2097152 -sb 32768
+real	0m1.276s
+user	0m6.080s
+sys	0m0.236s
+
+time ./superSearch ~/Desktop/searchNew/superSearch/testData/ "and is" -v -t1 3 -t2 10 -rb 2097152 -sb 32768
+real	0m1.130s
+user	0m7.316s
+sys	0m0.236s
+
+time ./superSearch ~/Desktop/searchNew/superSearch/testData/ "and is" -v -t1 3 -t2 10
+real	0m1.144s
+user	0m7.444s
+sys	0m0.244s
 
 <h3> Pozn:</h3>
 V repozitári je aj testovací single-thread program (single_thread.cpp).

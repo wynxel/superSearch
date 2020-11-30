@@ -180,9 +180,10 @@ void search_in_file(const fs::path t_path)
             read_error_again = true;
         }
         // search in buffer:
+        // (t_path.string() or t_path.filename().string())
         search(file_size - size_left, 
             (size_left == read) ? true : false, 
-            t_path.filename().string());
+            t_path.string());
         size_left -= read;
     }
     fclose(file);

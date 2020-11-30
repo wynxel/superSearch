@@ -41,8 +41,12 @@ namespace progconst{
     const string switch_h1 = "-h";
 
     // manual: 
-    const string manual = boost::str(boost::format{"Usage: search PATH PATTERN [OPTIONS]\nOptions:"
-        "\n\t-t1  NUM\t process NUM files in parallel"
+    const string manual = boost::str(boost::format{"Usage: search PATH PATTERN [OPTIONS]\n"
+        "This program allows to specify, how many threads will be used for reading files "
+        "(each thread gets its own files) and how many threads will be used for searching in each "
+        "file, which is currently being read.\n"
+        "\nOptions:"
+        "\n\t-t1  NUM\t read NUM files in parallel"
         "\n\t\t\t min: %1%, max: %2%, single thread (default): %1%"
         "\n\t-t2  NUM\t run search in each file with max NUM threads"
         "\n\t\t\t min: %3%, max: %4%, single thread (default): %3%"
@@ -50,6 +54,7 @@ namespace progconst{
         "\n\t\t\t min: %5%, max: %6% (default: %7%)"
         "\n\t\t\t use with -t2 >= 1"
         "\n\t-rb  NUM\t size of file reading buffer. Best option is to set it to L3 cache size."
+        "\n\t\t\t each call of fread() reads up to NUM characters"
         "\n\t\t\t min: %8%, max: %9% (default: %10%)"
         "\n\t-v      \t verbose"} 
         % THR_MIN % THR_MAX % THR_MIN % THR_MAX % SBUF_MIN % SBUF_MAX 

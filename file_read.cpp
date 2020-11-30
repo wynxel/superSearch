@@ -142,9 +142,9 @@ void FileRead::process_sub_results()
 {
     m_sub_job_results.sort();
     // file name:
-    string filename = m_file_path.filename().string();
+    //string filename = m_file_path.filename().string();
     // full path: (TODO, add cmd switch)
-    //string filename = m_file_path;
+    string filename = m_file_path.string();
     while (!m_sub_job_results.empty()) {
         const result* match = m_sub_job_results.pop_blocking();
         // <file>(<position>):<prefix>...<sufix> 

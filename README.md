@@ -9,7 +9,8 @@ Compile single thread test version with:
     g++ -std=c++17 -Wall single_thread.cpp -o single
     or make single
     
-Required:
+Info:
 =========
 - boost library (used only in one string operation...)
 - c++ 17 support
+- see [some tests](result-sk.txt) (currently in slovak language)

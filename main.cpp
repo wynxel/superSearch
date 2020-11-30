@@ -134,7 +134,7 @@ int main(int argc, char **argv)
             arg_rbuf = progconst::RBUF_DEF;
         }
     } else if (arg_rbuf < (int) progconst::RBUF_MIN 
-        || arg_sbuf > (int) progconst::RBUF_MAX) {
+        || arg_rbuf > (int) progconst::RBUF_MAX) {
         cout << progconst::wrong_value_ibuf << endl;
         return print_man_and_return_err();
     }

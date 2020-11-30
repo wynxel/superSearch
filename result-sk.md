@@ -42,6 +42,7 @@ user	0m0.852s
 sys	0m0.036s  
 
 <h3>Skúška zmena buffru:</h3>
+
 time ./superSearch ~/testData/ "and is" -v -t1 3 -t2 3 -rb 2097152  
 **real	0m0.158s**  
 user	0m0.924s  

@@ -72,14 +72,14 @@ int main(int argc, char **argv)
             }
             arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_sbuf){
-            // switch "-buf"
+            // switch "-sb"
             if (!stoi_exception(&arg_sbuf, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
                 return print_man_and_return_err();
             }
             arg_idx += 2;
         } else if (string(argv[arg_idx]) ==  progconst::switch_rbuf){
-            // switch "-ib"
+            // switch "-rb"
             if (!stoi_exception(&arg_rbuf, argv[arg_idx + 1])) {
                 cout << progconst::not_number << argv[arg_idx + 1] << endl;
                 return print_man_and_return_err();

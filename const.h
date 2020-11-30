@@ -36,23 +36,29 @@ namespace progconst{
     const string switch_verb = "-v";
     const string switch_t1 = "-t1";
     const string switch_t2 = "-t2";
-    const string switch_rbuf = "-ib";
-    const string switch_sbuf = "-buf";
+    const string switch_rbuf = "-rb";
+    const string switch_sbuf = "-sb";
     const string switch_h1 = "-h";
 
     // manual: 
-    const string manual = boost::str(boost::format{"Ussage: search PATH PATTERN [OPTIONS]\nOptions:"
+    const string manual = boost::str(boost::format{"Usage: search PATH PATTERN [OPTIONS]\nOptions:"
         "\n\t-t1  NUM\t process NUM files in parallel"
         "\n\t\t\t min: %1%, max: %2%, single thread (default): %1%"
         "\n\t-t2  NUM\t run search in each file with max NUM threads"
         "\n\t\t\t min: %3%, max: %4%, single thread (default): %3%"
-        "\n\t-buf NUM\t if -t2 > 1, split file to segments of size NUM and search in segments in parallel"
+        "\n\t-sb  NUM\t split file to segments of size NUM and search in segments in parallel"
         "\n\t\t\t min: %5%, max: %6% (default: %7%)"
-        "\n\t-ib  NUM\t size of file reading buffer. Best option is to set it to L3 cache size."
+        "\n\t\t\t use with -t2 >= 1"
+        "\n\t-rb  NUM\t size of file reading buffer. Best option is to set it to L3 cache size."
         "\n\t\t\t min: %8%, max: %9% (default: %10%)"
         "\n\t-v      \t verbose"} 
         % THR_MIN % THR_MAX % THR_MIN % THR_MAX % SBUF_MIN % SBUF_MAX 
         % SBUF_DEF % RBUF_MIN % RBUF_MAX % RBUF_DEF);
+    const string manual_single = boost::str(boost::format{"Usage: search PATH PATTERN [OPTIONS]\nOptions:"
+        "\n\t-rb  NUM\t size of file reading buffer. Best option is to set it to L3 cache size."
+        "\n\t\t\t min: %1%, max: %2% (default: %3%)"
+        "\n\t-v      \t verbose"}  
+        % RBUF_MIN % RBUF_MAX % RBUF_DEF);
     const string VERB_PATH = "Searching in path (file): ";
     const string VERB_STRING = "Seraching for string: ";
 
@@ -72,6 +78,7 @@ namespace progconst{
     const string match_vs_segment = "Error: provided segment length is smaller than length of string, which is to be "
         "found in this segment.";
     const string read_buf_vs_segment = "Error: read buffer can't be smaller than segment size.";
+    const string rbuf_gt_needle = "Error: reading buffer is shorter than string to search.";
 
     // program errors:
     const string file_error = "Unexpected error: ";

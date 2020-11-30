@@ -12,6 +12,7 @@ Program som spúšťal na native Ubuntu 16.04 s i7 4700MQ a ssd diskom.
 *(predvolene buffre su read buffer: 6MB, segment buffer: 65536B)*
 
 time ./superSearch ~/testData/ "and is" -v
+
 **real	0m0.635s**
 user	0m0.604s
 sys	0m0.028s

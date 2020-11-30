@@ -107,6 +107,11 @@ void FileRead::start(fs::path &t_path)
             index += this_segment_length;
         }
         size_left -= read;
+        // wait for sub-job threads to finnish with
+        // job (segments) passed through call_sub_job(),
+        // because in the next file read iteration, underlaying
+        // char* array will be overwritten!
+        wait_to_sub_finish();
     }
     fclose(file);
     // wait for sub-job threads to finnish with

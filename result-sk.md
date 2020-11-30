@@ -17,7 +17,7 @@ nastavení nepodarilo dosiahnuť značne väčšiu rýchlosť. Ani zvýšením p
 vlákien čítajúcich z ssd disku, ani zvíšením počtu vlákien vyhľadávajúcich v 
 načítaných dátach. Program bežal viac-menej vždy podobne rýchlo. 
 
-<h1> Pozn:
+<h3> Pozn: </h3>
 V repozitári je aj testovací single-thread program (single_thread.cpp).
 Je pomalší ako jeho multithredová verzia (main.cpp) v single-threadovom
 nastavení (ak main.cpp nedostane žiadne parametre navyše, beží

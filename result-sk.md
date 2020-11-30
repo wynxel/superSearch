@@ -7,8 +7,9 @@ väčších súborom (400+MB a 100+MB).
 Program som spúšťal na native Ubuntu 16.04 s i7 4700MQ a ssd diskom.
 .
 <h2>Zopár výsledkov:</h2>
-<h3>Testy na testData/ adresari:</h3>
-*(predvolene buffre su read buffer: 6MB, segment buffer: 65536B)*
+<h3>Testy na testData/ adresari:</h3>  
+
+*(predvolene buffre su read buffer: 6MB, segment buffer: 65536B)*  
 
 time ./superSearch ~/testData/ "and is" -v  
 **real	0m0.635s**  
@@ -53,6 +54,7 @@ user	0m0.860s
 sys	0m0.060s  
 
 <h3>Testy na testData/ adresari po pridani jedneho 400+MB suboru a jedneho 100+MB suboru:</h3>  
+
 *(predvolene buffre su read buffer: 6MB, segment buffer: 65536B)*  
 
 time ./superSearch ~/testData/ "and is" -v  

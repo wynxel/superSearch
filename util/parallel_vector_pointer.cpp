@@ -73,7 +73,7 @@ bool ParallelStack<T*>::empty() noexcept
 template <typename T>
 bool ParallelStack<T*>::ptr_compare(const T* elem1, const T* elem2)
 {
-    return (*elem1 < *elem2);
+    return (*elem1 > *elem2);
 }
 
 template <typename T>

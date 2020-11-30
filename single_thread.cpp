@@ -121,11 +121,15 @@ void search(const unsigned offset, const bool last, string filename)
                 progconst::SUFIX_LEN : (end - position - needle_len);
             // create strings:
             char prefix[pref_suf_max_char];
-            create_escaped_substring
-                (prefix, pref_suf_max_char, position - pref_len, pref_len);
+            if (!create_escaped_substring
+                (prefix, pref_suf_max_char, position - pref_len, pref_len)) {
+                    cerr << progconst::impossible << endl;
+                }
             char sufix[pref_suf_max_char];
-            create_escaped_substring
-                (sufix, pref_suf_max_char, position + needle_len, sufx_len);
+            if(!create_escaped_substring
+                (sufix, pref_suf_max_char, position + needle_len, sufx_len)) {
+                    cerr << progconst::impossible << endl;
+                }
             // print:
             print_result(filename, prefix, sufix, 
                 ((unsigned)(position - start)) + offset);

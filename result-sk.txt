@@ -1,3 +1,11 @@
 Oba programy (main aj single_thread) som testoval na 
-malom adresarovom strome (55 txt suborov, kazdy ~ 1.1-1.5MB,
-hlbka adresaroveho stromu 3). 
+malom adresárovom strome (55 txt súborov, každý ~ 1.1-1.5MB,
+hĺbka adresárového stromu 3). 
+Testoval som to na native Ubuntu 16.04 s i7 4700MQ a ssd diskom.
+.
+Testovací single-thread program (single_thread.cpp) je zhruba
+rovnako rýchly ako jeho multithredová verzia v single-threadovom
+nastavení (ak main.cpp nedostane žiadne parametre navyše, beží
+na jednom vlákne. Avšak robí niejaké kontroly navyše). 
+.
+

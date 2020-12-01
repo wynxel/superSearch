@@ -103,13 +103,13 @@ user	0m7.444s
 sys	0m0.244s  
 
 <h2>Krátky záver:</h2>
-Na zrýchlenie programu najviac vplývalo zvýšenie počtu vlákien. Ako aj tých, ktoré čítajú z disku tak aj tých, ktoré v načítaných dátach vyhľadávajú. Zmena veľkosti bufferov až tak neovplyvnila rýchlosť programu. Domnievam sa, že veľkosť buffrov by mohla hrať rolu pri vňčšom počte značne väčších súboroch (násobne viac ako veľkosť L3 cache).  
+Na zrýchlenie programu najviac vplývalo zvýšenie počtu vlákien. Ako aj tých, ktoré čítajú z disku tak aj tých, ktoré v načítaných dátach vyhľadávajú. Zmena veľkosti bufferov až tak neovplyvnila rýchlosť programu. Domnievam sa, že veľkosť buffrov by mohla hrať rolu pri väčšom počte značne väčších súboroch (násobne viac ako veľkosť L3 cache).  
 
 <h3> Pozn:</h3>
 V repozitári je aj testovací single-thread program (single_thread.cpp).
 Je pomalší ako jeho multithredová verzia (main.cpp) v single-threadovom
 nastavení (ak main.cpp nedostane žiadne parametre navyše, beží
-na jednom vlákne). Nie je mi celkom jasné prečo. 
+na jednom vlákne). Nie je mi celkom jasné prečo (keďže multithreadový main.cpp musí aj v single-threadovom nastavení robiť nejaké veci "navyše"). 
 Vhodným nastavením veľkosti read buffera sa však dá 
 dosiahnuť, že single_thread.cpp beží podobne rýchlo,
 ako single-threadový main.cpp.

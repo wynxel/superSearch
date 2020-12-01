@@ -6,7 +6,10 @@ Testoval som ho aj na tom istom adresárovom strome, po pridaní dvoch
 väčších súborom (400+MB a 100+MB). 
 Program som spúšťal na native Ubuntu 16.04 s i7 4700MQ a ssd diskom.
 .
-<h2>Zopár výsledkov:</h2>
+<h2>Zopár výsledkov:</h2>  
+*syntax: superSearch path needle -v [verbose] -h [help] -t1 NUM [number of read threads] -t2 NUM [number of search threads per each read thread] -rb NUM [size of each read buffer] -sb [size of each search buffer]  
+superSearch -h zobrazí podrobný manuál*
+
 <h3>Testy na testData/ adresari:</h3>  
 
 *(predvolene buffre su read buffer: 6MB, segment buffer: 65536B)*  

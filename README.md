@@ -13,4 +13,4 @@ Info:
 =========
 - boost library (used only in one string operation...)
 - c++ 17 support
-- see [some tests](result-sk.txt) (currently in slovak language)
+- see [some tests](result-sk.md) (currently in slovak language)

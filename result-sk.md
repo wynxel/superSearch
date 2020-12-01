@@ -1,7 +1,7 @@
 <h2>Testovanie:</h2>
 Program superSearch (v main.cpp) som testoval na 
 malom adresárovom strome testData (je súčasťou repozitáru, 
-55 txt súborov (anglický text + html tagy), každý ~ 1.1-1.5MB, hĺbka adresárového stromu 3). 
+55 txt súborov (anglický text + xml tagy), každý ~ 1.1-1.5MB, hĺbka adresárového stromu 3). 
 Testoval som ho aj na tom istom adresárovom strome, po pridaní dvoch 
 väčších súborom (400+MB a 100+MB). 
 Program som spúšťal na native Ubuntu 16.04 s i7 4700MQ a ssd diskom.
